@@ -6,12 +6,12 @@
 
 ## Crash On Fail
 set -e pipefail
-P_SERVER_UUID="70b95cda-ff10-4060-8628-daae57a06513"
+
 ## Setup Ptero Vars
 HostName="Nightowl Servers"
-HostDomain="nightowlservers.net"
-ClientToken='YWIHcWhlYlWk5F1eLkCpcq0LffP6kM6EHZ4HahG0E9e9QCBy'
-AppToken="MyApplicationAPIKey"
+HostDomain="MyDomain.net"
+ClientToken='MyClientAPIKey'
+AppToken='MyApplicationAPIKey'
 PanelHost="panel.${HostDomain}"
 TargetUUID="${P_SERVER_UUID::8}"
 
@@ -286,7 +286,7 @@ ApplicationAPI() {
                 [ NCK ] - Node Check: Retrieve Node Details\n
                    EXAMPLE: ApplicationAPI NCK <NODE_ID>\n
                 [ NAL ] - Node Allocations: Retrieve Node Allocations\n
-                   EXAMPLE: ApplicationAPI NAL <NODE_ID>\n
+                   EXAMPLE: ApplicationAPI NAL <NODE_ID> <PAGE_NUMBER>\n
                 [ TO ] - Travel Options: List Locations\n
                    EXAMPLE: ApplicationAPI TO\n
                 [ DT ] - Destination Details: Retrieve Location Details\n
