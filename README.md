@@ -24,4 +24,4 @@ A wrapper for interfacing with the Pterodactyl Api in Bash
 ### What Can You Do With This Tool?
     > You can make all kinds of cool stuff based on the API.
     > For example, here's me adding and removing 50 ports from an ARK server.
-![Ark Demo](https://github.com/Silent-dawn/bash-pteroapi/main/README/demo_wrapper.gif)
+![Ark Demo](../README/demo_wrapper.gif)
