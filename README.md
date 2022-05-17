@@ -102,6 +102,9 @@ Valid Options:
     ```
 
 ### What Can You Do With This Tool?
-    > You can make all kinds of cool stuff based on the API.
-    > For example, here's me adding and removing 50 ports from an ARK server.
+    You can make all kinds of cool stuff based on the API.
+    For example, here's me adding 50 ports to an ARK server.
 ![Ark Demo](../main/README/demo_wrapper.gif)
+
+    Here is a self assembling server (opens its own ports and everything)
+![Autobot Demo](../main/README/autobot.gif)
