@@ -96,10 +96,11 @@ Valid Options:
 
     > You would import it into the shell session using *source*
     > This is meant to be used a library
-    ```shell
-        source "/path/to/pteroapi.sh"
-        ClientAPI H
-    ```
+
+```shell
+    source "/path/to/pteroapi.sh"
+    ClientAPI H
+```
 
 ### What Can You Do With This Tool?
     You can make all kinds of cool stuff based on the API.
