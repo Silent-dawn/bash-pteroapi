@@ -6,341 +6,255 @@
 
 ## Crash On Fail
 set -e pipefail
-
-## Define 4-bit Color Table
-Tpurple="\e[35;40m"
-TBpurple="\e[95;40m"
-Tgreen="\e[32;40m"
-TBgreen="\e[92;40m"
-White="\e[0;40m"
-TBred="\e[91;40m"
-Tred="\e[31;40m"
-TByellow="\e[93;40m"
-Tyellow="\e[33;40m"
-Tcyan="\e[36;40m"
-TBcyan="\e[96;40m"
-## Define 8-bit (256_color) Table
-blue="\e[38;5;20m"
-Bblue="\e[38;5;21m"
-Red="\e[38;5;160m"
-Bred="\e[38;5;196m"
-Purple="\e[38;5;91m"
-Bpurple="\e[38;5;129m"
-Magenta="\e[38;5;165m"
-Bmagenta="\e[38;5;177m"
-Pink="\e[38;5;201m"
-Bpink="\e[38;5;213m"
-Yellow="\e[38;5;226m"
-Byellow="\e[38;5;228m"
-Orange="\e[38;5;215m"
-Borange="\e[38;5;220m"
-Green="\e[38;5;40m"
-Bgreen="\e[38;5;47m"
-Teal="\e[38;5;43m"
-Bteal="\e[38;5;122m"
-Cyan="\e[38;5;51m"
-Bcyan="\e[38;5;123m"
-Grey="\e[38;5;248m"
-#shellcheck disable=SC1117
-SuccessSymbol="${Bgreen}✔${White}"
-ErrorSymbol="${Bred}❗${White}"
-WarningSymbol="${Byellow}⚠${White}"
-KilledSymbol="${Bred}‼${White}"
-OptionSymbol="${Bpurple}--${White}"
-HelpNoteSymbol="✨${White}"
-CircleSymbol="${Cyan}💠${White}"
+P_SERVER_UUID="70b95cda-ff10-4060-8628-daae57a06513"
 ## Setup Ptero Vars
 HostName="Nightowl Servers"
 HostDomain="nightowlservers.net"
-ClientToken="MyClientAPI_Key"
+ClientToken='YWIHcWhlYlWk5F1eLkCpcq0LffP6kM6EHZ4HahG0E9e9QCBy'
 AppToken="MyApplicationAPIKey"
 PanelHost="panel.${HostDomain}"
 TargetUUID="${P_SERVER_UUID::8}"
+
+CurlOp() { ## This Is The Curl Worker Function
+    ## Declare Local Working Variables
+    local Token && local TargetURL && local OperationType && local Payload && local FinalOperation
+    ## Sanitize Inputs
+    [[  -z "${*}" ]] && echo "Arguements Needed For Curl API Function" >&2 && return 1
+    case "${1}" in
+        "")
+            echo "Target URL Cannot Be Null" >&2
+            return 1
+        ;;
+        "h"|"H"|"HELP"|"help")
+            echo -e "\
+            Expected Arguments: \n
+                1) TargetURL \n
+                2) ApiToken \n
+                3) Request Type \n
+                4) Payload, If Needed
+            "
+            return 0
+        ;;
+        *)
+            TargetURL="${1}"
+        ;;
+    esac
+    case "${2}" in
+        "")
+            echo "Authentification Token Required" >&2
+            return 1
+        ;;
+        *)
+            Token="${2}"
+        ;;
+    esac
+    case "${3}" in
+        "")
+            echo "Operation Type Required" >&2
+            return 1
+        ;;
+        "POST"|"post"|"put"|"PUT"|"PATCH"|"patch")
+            OperationType="${3^^}"
+            ## Check For Json Payload
+            case "$( [[ -n "${4}" ]] )${?}" in
+                0) ## Payload Not Null, Include With Operation
+                    Payload="${4}"
+                    curl -Ss --url "${TargetURL}" \
+                        -H "Accept: Application/vnd.pterodactyl.v1+json" \
+                        -H "Content-Type: application/json" \
+                        -H "Authorization: Bearer ${Token}" \
+                        -X "${OperationType}" -d "${Payload}"
+                ;;
+                1) ## Payload Is Null, Don't Include It With Operation
+                    curl -Ss --url "${TargetURL}" \
+                        -H "Accept: Application/vnd.pterodactyl.v1+json" \
+                        -H "Content-Type: application/json" \
+                        -H "Authorization: Bearer ${Token}" \
+                        -X "${OperationType}"
+                ;;
+            esac
+        ;;
+        "GET"|"get"|"delete"|"DELETE")
+            OperationType="${3^^}"
+            curl -Ss --url "${TargetURL}" \
+                -H "Accept: Application/vnd.pterodactyl.v1+json" \
+                -H "Content-Type: application/json" \
+                -H "Authorization: Bearer ${Token}" \
+                -X "${OperationType}"
+        ;;
+    esac
+} ## End Of Function
 
 ClientAPI() {
     ###############################################
     ##        ClientAPI API Wrapper Tool         ##
     ###############################################
-    ## Setup the Client Token
+    ## Setup the Client Token, Target Server, And TargetURL
     local Client_Token && Client_Token="${ClientToken}" && readonly Client_Token
-    # Construct Curl Statement Info
-    SVID="${TargetUUID}" && URL="https://${PanelHost}/api/client/servers/${SVID}"
+    local TargetServer && TargetServer="${TargetUUID}"
+    local UrlTarget && UrlTarget="https://${PanelHost}/api/client/servers/${TargetServer}"
     # Actually Do Something
-    case $1 in 
+    case "${1}" in 
         "HELP"|"help"|"h"|"H")
             echo -e "\n
             ClientAPI | Pterodactyl Api Wrapper Help Menu:\n
-            ${CIRCLE_SYMBOL} Syntax: ${Bteal}ClientAPI${White} <${Magenta}Command${White}> <${Green}Command Arguements${White}>\n
+                Syntax: ClientAPI <Command> <Command Arguements>\n
             Valid Options:\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}H${White} ] - ${Green}Help${White}\n
-                    EXAMPLE: ClientAPI H\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}S${White} ]  - ${Green}Service Info${White}\n
-                    EXAMPLE: ClientAPI S\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}GRI${White} ] - ${Green}Get Resource Info${White}\n
-                    EXAMPLE: ClientAPI GRI\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}CMD${White} ] - ${Green}Send Command To Container${White}\n
-                    EXAMPLE: ClientAPI CMD <COMMAND>\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}PWR${White} ] - ${Green}Set Power State${White}\n
-                    EXAMPLE: ClientAPI PWR <POWER_STATE>\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}GDB${White} ] - ${Green}Get Databases${White}\n
-                    EXAMPLE: ClientAPI GDB\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}CDB${White} ] - ${Green}Create Database${White} ${HelpNoteSymbol}\n
-                    EXAMPLE: ClientAPI CDB <PARAMETERS>\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}RDBP${White} ] - ${Green}Rotate Database Password${White}\n
-                    EXAMPLE: ClientAPI RDBP\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}DDB${White} ] - ${Green}Delete Targeted Database${White}\n
-                    EXAMPLE: ClientAPI DDB <TARGET_DATABASE>\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}GA${White} ] - ${Green}Get Allocation${White}\n
-                    EXAMPLE: ClientAPI GA\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}CA${White} ] - ${Green}Create Allocation${White}\n
-                    EXAMPLE: ClientAPI CA\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}DA${White} ] - ${Green}Delete Allocation${White}\n
-                    EXAMPLE: ClientAPI DA <ALLOCATION_ID>\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}AO${White} ] - ${Green}Allocation Operation${White} ${HelpNoteSymbol} ${HelpNoteSymbol}${HelpNoteSymbol}\n
-                    EXAMPLE: ClientAPI AO <ALLOCATION_ID> <PARAMETERS>\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}GSCH${White} ] - ${Green}Get Schedules Information${White}\n
-                    EXAMPLE: ClientAPI GSCH\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}CSCH${White} ] - ${Green}Create Schedule${White}\n
-                    EXAMPLE: ClientAPI CSCH <PARAMETERS>\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}GSCHD${White} ] - ${Green}Get Schedule Details${White}\n
-                    EXAMPLE: ClientAPI GSCHD\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}USCH${White} ] - ${Green}Update Schedule${White}\n
-                    EXAMPLE: ClientAPI USCH <SCHEDULE_ID> <PARAMETERS>\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}DSCH${White} ] - ${Green}Delete Schedule${White}\n
-                    EXAMPLE: ClientAPI DSCH <SCHEDULE_ID>\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}CTSK${White} ] - ${Green}Create Task${White}\n
-                    EXAMPLE: ClientAPI CTSK <SCHEDULE_ID> <PARAMETERS>\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}UTSK${White} ] - ${Green}Update Task${White}\n
-                    EXAMPLE: ClientAPI UTSK <SCHEDULE_ID> <TASK_ID> <PARAMETERS>\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}DTSK${White} ] - ${Green}Delete Task${White}\n
-                    EXAMPLE: ClientAPI DTSK <SCHEDULE_ID> <TASK_ID>\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}GBCK${White} ] - ${Green}Get Backups${White}\n
-                    EXAMPLE: ClientAPI GBCK\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}CBCK${White} ] - ${Green}Create Backup${White}\n
-                    EXAMPLE: ClientAPI CBCK\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}GBCKD${White} ] - ${Green}Get Backup Details${White}\n
-                    EXAMPLE: ClientAPI GBCKD <BACKUP_ID>\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}GBCKL${White} ] - ${Green}Get Backup Download Link${White}\n
-                    EXAMPLE: ClientAPI GBCKL <BACKUP_ID>\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}DBCK${White} ] - ${Green}Delete Backup${White}\n
-                    EXAMPLE: ClientAPI DBCK <BACKUP_ID>\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}LS${White} ] - ${Green}List Startup Variables${White}\n
-                    EXAMPLE: ClientAPI LS\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}ES${White} ] - ${Green}Edit Startup Variable${White} ${HelpNoteSymbol}\n
-                    EXAMPLE: ClientAPI ES <TARGET_VARIABLE> <PARAMETERS>\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}RS${White} ] - ${Green}Reinstall Server${White}\n
-                    EXAMPLE: ClientAPI RS\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}RENS${White} ] - ${Green}Rename Server${White}\n
-                    EXAMPLE: ClientAPI RENS <PARAMETERS>\n
+                [ H ] - Help\n
+                   EXAMPLE: ClientAPI H\n
+                [ S ]  - Service Info\n
+                   EXAMPLE: ClientAPI S\n
+                [ GRI ] - Get Resource Info\n
+                   EXAMPLE: ClientAPI GRI\n
+                [ CMD ] - Send Command To Container\n
+                   EXAMPLE: ClientAPI CMD <COMMAND>\n
+                [ PWR ] - Set Power State\n
+                   EXAMPLE: ClientAPI PWR <POWER_STATE>\n
+                [ GDB ] - Get Databases\n
+                   EXAMPLE: ClientAPI GDB\n
+                [ CDB ] - Create Database *\n
+                   EXAMPLE: ClientAPI CDB <PARAMETERS>\n
+                [ RDBP ] - Rotate Database Password\n
+                   EXAMPLE: ClientAPI RDBP\n
+                [ DDB ] - Delete Targeted Database\n
+                   EXAMPLE: ClientAPI DDB <TARGET_DATABASE>\n
+                [ GA ] - Get Allocation\n
+                   EXAMPLE: ClientAPI GA\n
+                [ CA ] - Create Allocation\n
+                   EXAMPLE: ClientAPI CA\n
+                [ DA ] - Delete Allocation\n
+                   EXAMPLE: ClientAPI DA <ALLOCATION_ID>\n
+                [ AO ] - Allocation Operation  \n
+                   EXAMPLE: ClientAPI AO <ALLOCATION_ID> <PARAMETERS> * **\n
+                [ GSCH ] - Get Schedules Information\n
+                   EXAMPLE: ClientAPI GSCH\n
+                [ CSCH ] - Create Schedule\n
+                   EXAMPLE: ClientAPI CSCH <PARAMETERS>\n
+                [ GSCHD ] - Get Schedule Details\n
+                   EXAMPLE: ClientAPI GSCHD\n
+                [ USCH ] - Update Schedule\n
+                   EXAMPLE: ClientAPI USCH <SCHEDULE_ID> <PARAMETERS>\n
+                [ DSCH ] - Delete Schedule\n
+                   EXAMPLE: ClientAPI DSCH <SCHEDULE_ID>\n
+                [ CTSK ] - Create Task\n
+                   EXAMPLE: ClientAPI CTSK <SCHEDULE_ID> <PARAMETERS>\n
+                [ UTSK ] - Update Task\n
+                   EXAMPLE: ClientAPI UTSK <SCHEDULE_ID> <TASK_ID> <PARAMETERS>\n
+                [ DTSK ] - Delete Task\n
+                   EXAMPLE: ClientAPI DTSK <SCHEDULE_ID> <TASK_ID>\n
+                [ GBCK ] - Get Backups\n
+                   EXAMPLE: ClientAPI GBCK\n
+                [ CBCK ] - Create Backup\n
+                   EXAMPLE: ClientAPI CBCK\n
+                [ GBCKD ] - Get Backup Details\n
+                   EXAMPLE: ClientAPI GBCKD <BACKUP_ID>\n
+                [ GBCKL ] - Get Backup Download Link\n
+                   EXAMPLE: ClientAPI GBCKL <BACKUP_ID>\n
+                [ DBCK ] - Delete Backup\n
+                   EXAMPLE: ClientAPI DBCK <BACKUP_ID>\n
+                [ LS ] - List Startup Variables\n
+                   EXAMPLE: ClientAPI LS\n
+                [ ES ] - Edit Startup Variable *\n
+                   EXAMPLE: ClientAPI ES <TARGET_VARIABLE> <PARAMETERS>\n
+                [ RS ] - Reinstall Server\n
+                   EXAMPLE: ClientAPI RS\n
+                [ RENS ] - Rename Server\n
+                   EXAMPLE: ClientAPI RENS <PARAMETERS>\n
             Valid API Options:\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}/allocations${White} ] - ${Green}Automatically Assign A New Allocation${White}\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}/allocations/{allocation}${White} ] - ${Green}Set Allocation Note. Json key:value Pair${White}\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}/allocations/{allocation}/primary${White} ] - ${Green}Set Primary Allocation${White}\n
-            ${HelpNoteSymbol}  - Note:\n
+                 [ /allocations ] - Automatically Assign A New Allocation\n
+                 [ /allocations/{allocation} ] - Set Allocation Note. Json key:value Pair\n
+                 [ /allocations/{allocation}/primary ] - Set Primary Allocation\n
+              * - Note:\n
                 Input MUST be a valid JSON Key|Value pair!\n
-            ${HelpNoteSymbol}${HelpNoteSymbol}  - Note:\n
+              ** - Note:\n
                 This is a post operation. You need to use valid API post operations\n
             "
         ;;
         "SERVICEINFO"|"serviceinfo"|"s"|"S")
-            curl -Ss --url "${URL}" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${Client_Token}" \
-            -X "GET"
+            CurlOp "${UrlTarget}" "${Client_Token}" "GET"
         ;;
         "GETRESOURCEINFO"|"getresourceinfo"|"gri"|"GRI")
-            curl -Ss --url "${URL}/resources" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${Client_Token}" \
-            -X "GET"
+            CurlOp "${UrlTarget}/resources" "${Client_Token}" "GET"
         ;;
         "SENDCOMMAND"|"sendcommand"|"cmd"|"CMD")
-            curl -Ss --url "${URL}/command" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${Client_Token}" \
-            -X "POST" -d "${2}" ## ${2} Must Be A JSON KEY|VALUE Pair!
+            CurlOp "${UrlTarget}/command" "${Client_Token}" "POST" "${2}" ## ${2} Must Be A JSON KEY|VALUE Pair!
         ;;
         "POWERSTATE"|"powerstate"|"pwr"|"PWR")
-            curl -Ss --url "${URL}/power" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${Client_Token}" \
-            -X "POST" -d "${2}" ## ${2} Must Be A JSON KEY|VALUE Pair!
+            CurlOp "${UrlTarget}/power" "${Client_Token}" "POST" "${2}" ## ${2} Must Be A JSON KEY|VALUE Pair!
         ;;
         "GETDATABASES"|"getdatabases"|"gdb"|"GDB")
-            curl -Ss --url "${URL}/databases" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${Client_Token}" \
-            -X "GET"
+            CurlOp "${UrlTarget}/databases" "${Client_Token}" "GET" 
         ;;
         "CREATEDATABASE"|"createdatabase"|"cdb"|"CDB")
-            curl -Ss --url "${URL}/databases" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${CLIT}" \
-            -X "POST" -d "${2}" ## ${2} Must Be A JSON KEY|VALUE Pair!
-
+            CurlOp "${UrlTarget}/databases" "${Client_Token}" "POST" "${2}" ## ${2} Must Be A JSON KEY|VALUE Pair!
         ;;
         "ROTATEDATABASEPASSWORD"|"rotatedatabasepassword"|"rdbp"|"RDBP")
-            curl -Ss --url "${URL}/databases/${3}/rotate-password" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${Client_Token}" \
-            -X "POST"
-
+            CurlOp "${UrlTarget}/databases/${3}/rotate-password" "${Client_Token}" "POST"
         ;;
         "DELETEDATABASE"|"deleteatabase"|"ddb"|"DDB")
-            curl -Ss --url "${URL}/databases/${2}" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${Client_Token}" \
-            -X "DELETE"
+            CurlOp "${UrlTarget}/databases/${2}" "${Client_Token}" "DELETE"
         ;;
         "GETALLOC"|"getalloc"|"ga"|"GA")
-            curl -Ss --url "${URL}/network/allocations" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${Client_Token}" \
-            -X "GET"
+            CurlOp "${UrlTarget}/network/allocations" "${Client_Token}" "GET"
         ;;
         "CREATEALLOC"|"createalloc"|"ca"|"CA")
-            curl -Ss --url "${URL}/network/allocations" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${Client_Token}" \
-            -X "POST"
+            CurlOp "${UrlTarget}/network/allocations" "${Client_Token}" "POST"
         ;;
         "ALLOCOP"|"allocop"|"ao"|"AO")
-            curl -Ss --url "${URL}/network/allocations/${2}" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${Client_Token}" \
-            -X "POST" -d "${3}" ## ${3} Must Be A JSON KEY|VALUE Pair!
+            CurlOp "${UrlTarget}/network/allocations/${2}" "${Client_Token}" "POST" "${3}" ## ${3} Must Be A JSON KEY|VALUE Pair!
         ;;
         "GETSCHEDULES"|"getschedules"|"gsch"|"GSCH")
-            curl -Ss --url "${URL}/schedules" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${Client_Token}" \
-            -X "GET"
+            CurlOp "${UrlTarget}/schedules" "${Client_Token}" "GET"
         ;;
         "CREATESCHEDULE"|"createschedule"|"csch"|"CSCH")
-            curl -Ss --url "${URL}/schedules" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${Client_Token}" \
-            -X "POST"
+            CurlOp "${UrlTarget}/schedules" "${Client_Token}" "POST"
         ;;
         "GETSCHEDULEDETAILS"|"getscheduledetails"|"gschd"|"GSCHD")
-            curl -Ss --url "${URL}/schedules/${2}" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${Client_Token}" \
-            -X "GET"
+            CurlOp "${UrlTarget}/schedules/${2}" "${Client_Token}" "GET"
         ;;
         "UPDATESCHEDULE"|"updateschedule"|"usch"|"USCH")
-            curl -Ss --url "${URL}/schedules/${2}" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${Client_Token}" \
-            -X "POST" -d "${3}" ## ${3} Must Be A JSON KEY|VALUE Body!
+            CurlOp "${UrlTarget}/schedules/${2}" "${Client_Token}" "POST" "${3}" ## ${3} Must Be A JSON KEY|VALUE Pair!
         ;;
         "DELETESCHEDULE"|"deleteschedule"|"dsch"|"DSCH")
-            curl -Ss --url "${URL}/schedules/${2}" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${Client_Token}" \
-            -X "DELETE"
+            CurlOp "${UrlTarget}/schedules/${2}" "${Client_Token}" "DELETE"
         ;;
         "CREATETASK"|"createtask"|"ctsk"|"CTSK")
-            curl -Ss --url "${URL}/schedules/${2}/tasks" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${Client_Token}" \
-            -X "POST"
+            CurlOp "${UrlTarget}/schedules/${2}/tasks" "${Client_Token}" "POST"
         ;;
         "UPDATETASK"|"updatetask"|"utsk"|"UTSK")
-            curl -Ss --url "${URL}/schedules/${2}/tasks/${3}" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${Client_Token}" \
-            -X "POST" -d "${4}" ## ${4} MUST BE A VALID JSON KEY|VALUE BODY!
+            CurlOp "${UrlTarget}/schedules/${2}/tasks/${3}" "${Client_Token}" "POST" "${4}" ## ${4} MUST BE A VALID JSON KEY|VALUE BODY!
         ;;
         "DELETETASK"|"deletetask"|"dtsk"|"DTSK")
-            curl -Ss --url "${URL}/schedules/${2}/tasks/${3}" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${Client_Token}" \
-            -X "DELETE"
+            CurlOp "${UrlTarget}/schedules/${2}/tasks/${3}" "${Client_Token}" "DELETE"
         ;;
         "GETBACKUPS"|"getbackups"|"gbck"|"GBCK")
-            curl -Ss --url "${URL}/backups" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${Client_Token}" \
-            -X "GET"
+            CurlOp "${UrlTarget}/backups" "${Client_Token}" "GET"
         ;;
         "CREATEBACKUP"|"createbackup"|"cbck"|"CBCK")
-            curl -Ss --url "${URL}/backups" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${Client_Token}" \
-            -X "POST"
+            CurlOp "${UrlTarget}/backups" "${Client_Token}" "POST"
         ;;
         "GETBACKUPDETAILS"|"getbackupdetails"|"gbckd"|"GBCKD")
-            curl -Ss --url "${URL}/backups/${2}" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${Client_Token}" \
-            -X "GET"
+            CurlOp "${UrlTarget}/backups/${2}" "${Client_Token}" "GET"
         ;;
         "GETBACKUPLINK"|"getbackuplink"|"gbckl"|"GBCKL")
-            curl -Ss --url "${URL}/backups/${2}/download" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${Client_Token}" \
-            -X "GET"
+            CurlOp "${UrlTarget}/backups/${2}/download" "${Client_Token}" "GET" 
         ;;
         "DELETEBACKUP"|"deletebackup"|"dbck"|"DBCK")
-            curl -Ss --url "${URL}/backups/${2}" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${Client_Token}" \
-            -X "DELETE"
+            CurlOp "${UrlTarget}/backups/${2}" "${Client_Token}" "DELETE"
         ;;
         "LISTSTART"|"liststart"|"ls"|"LS")
-            curl -Ss --url "${URL}/startup" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${Client_Token}" \
-            -X "GET"
+            CurlOp "${UrlTarget}/startup/" "${Client_Token}" "GET"
         ;;
         "EDITSTART"|"editstart"|"es"|"ES")
-            curl -Ss --url "${URL}/startup/variable" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${Client_Token}" \
-            -X "PUT" -d "${2}" ## ${2} Must Be A JSON KEY|VALUE Pair!
+            CurlOp "${UrlTarget}/startup/variable" "${Client_Token}" "PUT" "${2}" ## ${2} MUST BE A VALID JSON KEY|VALUE BODY!
         ;;
         "REINSTALLSERVER"|"reinstallserver"|"rs"|"RS")
-            curl -Ss --url "${URL}/settings/reinstall" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${Client_Token}" \
-            -X "POST"
+            CurlOp "${UrlTarget}/settings/reinstall" "${Client_Token}" "POST"
         ;;
         "RENAMESERVER"|"renameserver"|"rens"|"RENS")
-            curl -Ss --url "${URL}/settings/rename" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${Client_Token}" \
-            -X "POST" -d "${2}" ## ${2} Must Be A JSON KEY|VALUE Pair!
+            CurlOp "${UrlTarget}/settings/rename" "${Client_Token}" "POST" "${2}" ## ${2} MUST BE A VALID JSON KEY|VALUE BODY!
         ;;
-        *) echo -e "[${Bred}ERROR${White}] ${Yellow}Invalid Arguement${White}";; ## Obviously you didn't listen and put something stupid.
+        *) echo -e "[ERROR] Invalid Arguement" >&2 ;; ## Obviously you didn't listen and put something stupid.
     esac
 } ## End Of Function
 
@@ -348,204 +262,124 @@ ApplicationAPI() {
     ################################################################
     ##    ApplicationAPI - PTERODACTYL APPLICATION API WRAPPER    ##
     ################################################################
-    ## Setup Application Token
-    local App_Token && App_Token="${AppToken}" && readonly App_Token
+    ## Setup the Client Token, Target Server, And TargetURL
+    local App_Token && App_Token="${ClientToken}" && readonly App_Token
+    local UrlTarget && UrlTarget="https://${PanelHost}/api/application"
     ## The Emperor has graced you with read perms, and only RW on servers and server databases.
     ## Do not forget this Astartes.
-    SVID="${TargetUUID}" && URL="https://${PanelHost}/api/application"
     case "${1}" in
         "HELP"|"help"|"h"|"H") ## Help menu
             echo -e "\n
             ApplicationAPI | Pterodactyl App API Help Menu:\n
-            ${CircleSymbol} Syntax: ${Bteal}ApplicationAPI${White} <${Magenta}Command${White}> <${Green}Command Argument(s)${White}>\n
+                Syntax: ApplicationAPI <Command> <Command Argument(s)>\n
             Valid Options:\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}H${White} ] - ${Green}Help${White}\n
-                    EXAMPLE: ApplicationAPI H\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}RC${White} ] - ${Green}Rolecall: List Users${White}\n
-                    EXAMPLE: ApplicationAPI RC\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}BGC${White} ] - ${Green}Background Check: Retrieve User Details${White}\n
-                    EXAMPLE: ApplicationAPI BGC <USER_ID>\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}PPC${White} ] - ${Green}Passport Check: Retrieve User Details Using External ID${White}\n
-                    EXAMPLE: ApplicationAPI PPC <EXTERNAL_USER_ID>\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}NL${White} ] - ${Green}Node List: List Nodes${White}\n
-                    EXAMPLE: ApplicationAPI NL\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}NCK${White} ] - ${Green}Node Check: Retrieve Node Details${White}\n
-                    EXAMPLE: ApplicationAPI NCK <NODE_ID>\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}NAL${White} ] - ${Green}Node Allocations: Retrieve Node Allocations${White}\n
-                    EXAMPLE: ApplicationAPI NAL <NODE_ID>\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}TO${White} ] - ${Green}Travel Options: List Locations${White}\n
-                    EXAMPLE: ApplicationAPI TO\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}DT${White} ] - ${Green}Destination Details: Retrieve Location Details${White}\n
-                    EXAMPLE: ApplicationAPI DT <LOCATION_ID>\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}SL${White} ] - ${Green}Server List: List Servers${White}\n
-                    EXAMPLE: ApplicationAPI SL\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}SCK${White} ] - ${Green}Server Check: Retrieve Server Details${White}\n 
-                    EXAMPLE: ApplicationAPI SCK <SERVER_ID>\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}SFCK${White} ] - ${Green}Server Foreign Check: Retrieve Server Details Using External ID${White}\n
-                    EXAMPLE: ApplicationAPI SFCK <EXTERNAL_SERVER_ID>\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}SRVP${White} ] - ${Green}Server Patch: Patch Server Details${White} ${HelpNoteSymbol}\n
-                    EXAMPLE: ApplicationAPI SRVP <SERVER_ID> <PARAMETERS>\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}SRVPB${White} ] - ${Green}Server Patch Build: Patch Server Build${White} ${HelpNoteSymbol}\n
-                    EXAMPLE: ApplicationAPI SRVPB <SERVER_ID> <PARAMETERS>\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}SRVPS${White} ] - ${Green}Server Patch Start: Patch Server Startup${White} ${HelpNoteSymbol}\n
-                    EXAMPLE: ApplicationAPI SRVPS <SERVER_ID> <PARAMETERS>\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}SBL${White} ] - ${Green}Server Database List: List Server Databases${White}\n
-                    EXAMPLE: ApplicationAPI SBL\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}SBLCK${White} ] - ${Green}Server Database Check: Check Server Database${White}\n
-                    EXAMPLE: ApplicationAPI SBLCK <SERVER_ID> <DATABASE_ID>\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}SDBCRT${White} ] - ${Green}Server Database Create: Create Server Database${White}\n
-                    EXAMPLE: ApplicationAPI SDBCRT <SERVER_ID>\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}SDBPWD${White} ] - ${Green}Server Database Password Rotate: Rotate Server Database Password${White}\n
-                    EXAMPLE: ApplicationAPI SDBPWD <SERVER_ID> <DATABASE_ID>\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}SDBDL${White} ] - ${Green}Server Database Delete: Delete Server Database${White}\n
-                    EXAMPLE: ApplicationAPI SDBCL <SERVER_ID> <DATABASE_ID>\n
-                ${Cyan}${OptionSymbol} [ ${Magenta}RESRV${White} ] - ${Green}Reinstall Server: Reinstall Server${White}\n
-                    EXAMPLE: ApplicationAPI RESRV <SERVER_ID>\n
+                [ H ] - Help\n
+                   EXAMPLE: ApplicationAPI H\n
+                [ RC ] - Rolecall: List Users\n
+                   EXAMPLE: ApplicationAPI RC\n
+                [ BGC ] - Background Check: Retrieve User Details\n
+                   EXAMPLE: ApplicationAPI BGC <USER_ID>\n
+                [ PPC ] - Passport Check: Retrieve User Details Using External ID\n
+                   EXAMPLE: ApplicationAPI PPC <EXTERNAL_USER_ID>\n
+                [ NL ] - Node List: List Nodes\n
+                   EXAMPLE: ApplicationAPI NL\n
+                [ NCK ] - Node Check: Retrieve Node Details\n
+                   EXAMPLE: ApplicationAPI NCK <NODE_ID>\n
+                [ NAL ] - Node Allocations: Retrieve Node Allocations\n
+                   EXAMPLE: ApplicationAPI NAL <NODE_ID>\n
+                [ TO ] - Travel Options: List Locations\n
+                   EXAMPLE: ApplicationAPI TO\n
+                [ DT ] - Destination Details: Retrieve Location Details\n
+                   EXAMPLE: ApplicationAPI DT <LOCATION_ID>\n
+                [ SL ] - Server List: List Servers\n
+                   EXAMPLE: ApplicationAPI SL\n
+                [ SCK ] - Server Check: Retrieve Server Details\n 
+                   EXAMPLE: ApplicationAPI SCK <SERVER_ID>\n
+                [ SFCK ] - Server Foreign Check: Retrieve Server Details Using External ID\n
+                   EXAMPLE: ApplicationAPI SFCK <EXTERNAL_SERVER_ID>\n
+                [ SRVP ] - Server Patch: Patch Server Details *\n
+                   EXAMPLE: ApplicationAPI SRVP <SERVER_ID> <PARAMETERS>\n
+                [ SRVPB ] - Server Patch Build: Patch Server Build *\n
+                   EXAMPLE: ApplicationAPI SRVPB <SERVER_ID> <PARAMETERS>\n
+                [ SRVPS ] - Server Patch Start: Patch Server Startup *\n
+                   EXAMPLE: ApplicationAPI SRVPS <SERVER_ID> <PARAMETERS>\n
+                [ SBL ] - Server Database List: List Server Databases\n
+                   EXAMPLE: ApplicationAPI SBL\n
+                [ SBLCK ] - Server Database Check: Check Server Database\n
+                   EXAMPLE: ApplicationAPI SBLCK <SERVER_ID> <DATABASE_ID>\n
+                [ SDBCRT ] - Server Database Create: Create Server Database\n
+                   EXAMPLE: ApplicationAPI SDBCRT <SERVER_ID>\n
+                [ SDBPWD ] - Server Database Password Rotate: Rotate Server Database Password\n
+                   EXAMPLE: ApplicationAPI SDBPWD <SERVER_ID> <DATABASE_ID>\n
+                [ SDBDL ] - Server Database Delete: Delete Server Database\n
+                   EXAMPLE: ApplicationAPI SDBCL <SERVER_ID> <DATABASE_ID>\n
+                [ RESRV ] - Reinstall Server: Reinstall Server\n
+                   EXAMPLE: ApplicationAPI RESRV <SERVER_ID>\n
                 \n
-                ${HelpNoteSymbol}  - Note:\n
+                * - Note:\n
                     Input MUST be a valid JSON Key|Value pair.\n
             "
         ;;
-        "ROLECALL"|"rolecall"|"RC"|"rc")
-            curl -Ss --url "${URL}/users" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${App_Token}" \
-            -X "GET"
+        "ROLECALL"|"rolecall"|"RC"|"rc"|"LISTSERVERS"|"listservers")
+            CurlOp "${UrlTarget}/users" "${App_Token}" "GET"
         ;;
         "BACKGROUNDCHECK"|"backgroundcheck"|"BGC"|"bgc")
-            curl -Ss --url "${URL}/users/${2}" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${App_Token}" \
-            -X "GET"
+            CurlOp "${UrlTarget}/users/${2}" "${App_Token}" "GET"
         ;;
         "PASSPORTCHECK"|"passportcheck"|"ppc"|"PPC")
-            curl -Ss --url "${URL}/users/external/${2}" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${App_Token}" \
-            -X "GET"
+            CurlOp "${UrlTarget}/users/external/${2}" "${App_Token}" "GET"
         ;;
         "NODELIST"|"nodelist"|"NL"|"nl")
-            curl -Ss --url "${URL}/nodes" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${App_Token}" \
-            -X "GET"
+            CurlOp "${UrlTarget}/nodes" "${App_Token}" "GET"
         ;;
         "NODECHECK"|"nodecheck"|"NCK"|"nck")
-            curl -Ss --url "${URL}/nodes/${2}" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${App_Token}" \
-            -X "GET"
+            CurlOp "${UrlTarget}/nodes/${2}" "${App_Token}" "GET"
         ;;
         "NODEALLOC"|"nodealloc"|"NAL"|"nal")
-            curl -Ss --url "${URL}/nodes/${2}/allocations?per_page=500&page=${3}" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${App_Token}" \
-            -X "GET"
+            CurlOp "${UrlTarget}/nodes/${2}/allocations?per_page=500&page=${3}" "${App_Token}" "GET"
         ;;
         "TRAVELOPTIONS"|"traveloptions"|"TO"|"to")
-            curl -Ss --url "${URL}/locations" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${App_Token}" \
-            -X "GET"
+            CurlOp "${UrlTarget}/locations" "${App_Token}" "GET"
         ;;
         "DESTINATIONDETAILS"|"destinationdetails"|"DT"|"dt")
-            curl -Ss --url "${URL}/locations/${2}" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${App_Token}" \
-            -X "GET"
+            CurlOp "${UrlTarget}/locations/${2}" "${App_Token}" "GET"
         ;;
         "SERVERLIST"|"serverlist"|"SL"|"sl")
-            curl -Ss --url "${URL}/servers" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${App_Token}" \
-            -X "GET"
+            CurlOp "${UrlTarget}/servers" "${App_Token}" "GET"
         ;;
         "SERVERCHECK"|"servercheck"|"SCK"|"sck")
-            curl -Ss --url "${URL}/servers/${2}" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${App_Token}" \
-            -X "GET"
+            CurlOp "${UrlTarget}/servers/${2}" "${App_Token}" "GET"
         ;;
         "SERVERFOERIGNCHECK"|"serverforeigncheck"|"SFCK"|"sfck")
-            curl -Ss --url "${URL}/servers/external/${2}" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${App_Token}" \
-            -X "GET"
+            CurlOp "${UrlTarget}/servers/external/${2}" "${App_Token}" "GET"
         ;;
         "SERVERPATCH"|"serverpatch"|"SRVP"|"srvp")
-            curl -Ss --url "${URL}/servers/${2}/details" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${App_Token}" \
-            -X "PATCH" -d "${3}" ## ${3} MUST BE A VALID JSON BODY!
+            CurlOp "${UrlTarget}/servers/${2}/details" "${App_Token}" "PATCH" "${3}" ## ${3} MUST BE A VALID JSON BODY
         ;;
         "SERVERPATCHBUILD"|"serverpatchbuild"|"SRVPB"|"srvpb")
-            curl -Ss --url "${URL}/servers/${2}/build" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${App_Token}" \
-            -X "PATCH" -d "${3}" ## ${3} MUST BE A VALID JSON BODY!
+            CurlOp "${UrlTarget}/servers/${2}/build" "${App_Token}" "PATCH" "${3}" ## ${3} MUST BE A VALID JSON BODY
         ;;
         "SERVERPATCHSTART"|"serverpatchstart"|"SRVPS"|"srvps")
-            curl -Ss --url "${URL}/servers/${2}/startup" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${App_Token}" \
-            -X "PATCH" -d "${3}" ## ${3} MUST BE A VALID JSON BODY!
+            CurlOp "${UrlTarget}/servers/${2}/startup" "${App_Token}" "PATCH" "${3}" ## ${3} MUST BE A VALID JSON BODY
         ;;
         "SERVERDATABASELIST"|"serverdatabaselist"|"SDBL"|"sdbl")
-            curl -Ss --url "${URL}/servers/${2}/databases?include=password,host" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${App_Token}" \
-            -X "GET"
+            CurlOp "${UrlTarget}/servers/${2}/databases?include=password,host" "${App_Token}" "GET"
         ;;
         "SERVERDATABASECHECK"|"serverdatabasecheck"|"SDBCK"|"sdbck")
-            curl -Ss --url "${URL}/servers/${2}/databases/${3}" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${App_Token}" \
-            -X "GET"
+            CurlOp "${UrlTarget}/servers/${2}/databases/${3}" "${App_Token}" "GET"
         ;;
         "SERVERDATABASECREATE"|"serverdatabasecreate"|"SDBCRT"|"sdbcrt")
-            curl -Ss --url "${URL}/servers/${2}/databases" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${App_Token}" \
-            -X "POST"
+            CurlOp "${UrlTarget}/servers/${2}/databases" "${App_Token}" "POST"
         ;;
         "SERVERDATABASEPASSWORD"|"serverdatabasepassword"|"SDBPWD"|"sdbpwd")
-            curl -Ss --url "${URL}/servers/${2}/databases/${3}/reset-password" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${App_Token}" \
-            -X "POST"
+            CurlOp "${UrlTarget}/servers/${2}/databases/${3}/reset-password" "${App_Token}" "POST"
         ;;
         "SERVERDATABASEDELETE"|"serverdatabasedelete"|"SDBDL"|"sdbdl")
-            curl -Ss --url "${URL}/servers/${2}/databases/${3}" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${App_Token}" \
-            -X "DELETE"
+            CurlOp "${UrlTarget}/servers/${2}/databases/${3}" "${App_Token}" "DELETE"
         ;;
         "REINSTALLSERVER"|"reinstallserver"|"RESRV"|"resrv")
-            curl -Ss --url "${URL}/servers/${2}/reinstall" \
-            -H "Accept: Application/vnd.pterodactyl.v1+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${App_Token}" \
-            -X "POST"
+            CurlOp "${UrlTarget}/servers/${2}/reinstall" "${App_Token}" "POST"
         ;;
-        *) echo -e "[${Bred}ERROR${White}] ${Yellow}Invalid Arguement${White}";; ## Obviously you didn't listen and put something stupid.
+        *) echo -e "[ERROR] Invalid Arguement" >&2 ;; ## Obviously you didn't listen and put something stupid.
     esac
 } ## End Of Function
