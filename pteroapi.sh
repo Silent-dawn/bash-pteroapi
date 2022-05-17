@@ -70,7 +70,7 @@ ClientAPI() {
         "HELP"|"help"|"h"|"H")
             echo -e "\n
             ClientAPI | Pterodactyl Api Wrapper Help Menu:\n
-            ${CIRCLE_SYMBOL} Syntax: ${Bteal}Legatus${White} <${Magenta}Command${White}> <${Green}Command Arguements${White}>\n
+            ${CIRCLE_SYMBOL} Syntax: ${Bteal}ClientAPI${White} <${Magenta}Command${White}> <${Green}Command Arguements${White}>\n
             Valid Options:\n
                 ${Cyan}${OptionSymbol} [ ${Magenta}H${White} ] - ${Green}Help${White}\n
                     EXAMPLE: ClientAPI H\n
@@ -357,7 +357,7 @@ ApplicationAPI() {
         "HELP"|"help"|"h"|"H") ## Help menu
             echo -e "\n
             ApplicationAPI | Pterodactyl App API Help Menu:\n
-            ${CircleSymbol} Syntax: ${Bteal}PteroAppApi${White} <${Magenta}Command${White}> <${Green}Command Argument(s)${White}>\n
+            ${CircleSymbol} Syntax: ${Bteal}ApplicationAPI${White} <${Magenta}Command${White}> <${Green}Command Argument(s)${White}>\n
             Valid Options:\n
                 ${Cyan}${OptionSymbol} [ ${Magenta}H${White} ] - ${Green}Help${White}\n
                     EXAMPLE: ApplicationAPI H\n
