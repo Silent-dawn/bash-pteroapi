@@ -8,6 +8,24 @@ A wrapper for interfacing with the Pterodactyl Api in Bash
 **This is also not up to date with all API endpoints, when more updates come out I'll map the remaining ones.**
 
 ---
+
+---
+## Features
+---
+
+Most of both the Client and Application API endpoints are mapped, including some less known ones.
+
+This wrapper is STUPID lightweight, you literally only need curl, jq, and bash to use it.
+
+It's FAST. The average operation is less than 500 milliseconds, meaning it's mostly web delays not the wrapper.
+
+The code is documented. I make a good effort to comment and document my code
+
+Here's how fast this thing grabs a server's information and processes the json in jq.
+
+![ServiceDetails Demo](../main/README/service_details.gif)
+
+---
 ## Client API
 ---
 
@@ -95,7 +113,7 @@ Valid Options:
 ### How Do I Use This?
 
     > You would import it into the shell session using *source*
-    > This is meant to be used a library
+    > This is meant to be used as a library
 
 ```shell
     source "/path/to/pteroapi.sh"
