@@ -19,7 +19,7 @@ CurlOp() { ## This Is The Curl Worker Function
     ## Declare Local Working Variables
     local Token && local TargetURL && local OperationType && local Payload
     ## Sanitize Inputs
-    [[  -z "${*}" ]] && echo "Arguements Needed For Curl API Functionality" >&2 && return 1
+    #[[  -z "${*}" ]] && echo "Arguements Needed For Curl API Functionality" >&2 && return 1
     case "${1:-NULL}" in
         ""|"null"|"NULL") ## Null Value
             echo "Target URL Cannot Be Null" >&2
