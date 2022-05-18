@@ -7,7 +7,6 @@ A wrapper for interfacing with the Pterodactyl Api in Bash
 **This is not a ready to deploy tool, you'll need to edit it to your needs.**
 **This is also not up to date with all API endpoints, when more updates come out I'll map the remaining ones.**
 
----
 
 ---
 ## Features
