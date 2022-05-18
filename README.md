@@ -104,16 +104,18 @@ Valid Options:
 ---
 
 ### What Does This Do?
-    > This is a bash wrapper to help facilitate connecting with the Pterodactyl API.
-    > You can use it to manage servers on the API, or as a basis to impliment more complex logic.
+
+    This is a bash wrapper to help facilitate connecting with the Pterodactyl API.
+    You can use it to manage servers on the API, or as a basis to impliment more complex logic.
 
 ### Can I Use This In My Project?
-    > Yes, go nuts
+    
+    Yes, go nuts
 
 ### How Do I Use This?
 
-    > You would import it into the shell session using *source*
-    > This is meant to be used as a library
+    You would import it into the shell session using *source*
+    This is meant to be used as a library
 
 ```shell
     source "/path/to/pteroapi.sh"
