@@ -6,11 +6,11 @@
 
 ## Crash On Fail
 set -e pipefail
-P_SERVER_UUID="70b95cda-ff10-4060-8628-daae57a06513"
+
 ## Setup Ptero Vars
 HostName="Nightowl Servers"
 HostDomain="nightowlservers.net"
-ClientToken='YWIHcWhlYlWk5F1eLkCpcq0LffP6kM6EHZ4HahG0E9e9QCBy'
+ClientToken='MyClientAPIKey'
 AppToken='MyApplicationAPIKey'
 PanelHost="panel.${HostDomain}"
 TargetUUID="${P_SERVER_UUID::8}"
