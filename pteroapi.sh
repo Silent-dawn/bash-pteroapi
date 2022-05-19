@@ -35,11 +35,11 @@ TargetUUID="${SERVER_UUID::8}"
 
 
 ##############################
-## Connectivity Information ##
+## CURL Information ##
 ################################################################################################
-##  You Have To Change The Below Variables To Tell The Wrapper How And Where To Connect       ##
-##  You Need The Client API Key for ClientAPI And The Application API Key for ApplicationAPI  ##
-##  The TargetUUID Only Needs To Be The First 8 Characters Of The Server UUID In Question     ##
+##  This Curl Worker Function Does NOT Send Requests To The API If An Error Is Found          ##
+##  This Is To Keep Bad/Erronious Requests From Clogging Up Your API's Workload               ##
+##  The Function Works Via A Complex Case Statement, I DO NOT Use 'if' In My Bash Code.       ##
 ################################################################################################
 CurlOp() { ## This Is The Curl Worker Function
     ## Declare Local Working Variables
@@ -48,24 +48,18 @@ CurlOp() { ## This Is The Curl Worker Function
     [[  -z "${*}" ]] && echo "Arguements Needed For Curl API Functionality" >&2 && return 1
     case "${1:-NULL}" in
         ""|"null"|"NULL") ## Null Value
-            echo "Target URL Cannot Be Null" >&2
+            printf '%s\n' "Target URL Cannot Be Null" >&2
             return 1
         ;;
         "h"|"H"|"HELP"|"help")
-            echo -e "\
-            Expected Arguments: \n
-                1) TargetURL \n
-                2) ApiToken \n
-                3) Request Type \n
-                4) Payload, If Needed
-            "
+            printf '%s\n' 'Expected Arguments:' '1) TargetURL' '2) ApiToken' '3) Request Type' '4) Payload, If Needed'
             return 0
         ;;
         *) ## Not Null Value
             TargetURL="${1}"
             case "${2:-NULL}" in
                 ""|"NULL"|"null") ## Null Value
-                    echo "Authentification Token Required" >&2
+                    printf '%s\n' "[ERROR] Authentification Token Required" >&2
                     return 1
                 ;;
                 *) ## Not Null Value
@@ -75,7 +69,7 @@ CurlOp() { ## This Is The Curl Worker Function
                             Token="${2}"
                             case "${3:-NULL}" in
                                 ""|"NULL"|"null")
-                                    echo "Operation Type Required" >&2
+                                    printf '%s\n' "[ERROR] Operation Type Required" >&2
                                     return 1
                                 ;;
                                 "POST"|"post"|"put"|"PUT"|"PATCH"|"patch")
@@ -110,7 +104,7 @@ CurlOp() { ## This Is The Curl Worker Function
                             esac
                         ;;
                         *) ## Invalid
-                            echo "Invalid Or Malformed API Key Provided" >&2
+                            printf '%s\n' "[ERROR] Invalid Or Malformed API Key Provided" >&2
                             return 1
                         ;;
                     esac
@@ -133,7 +127,7 @@ ClientAPI() {
     #[[  -z "${*}" ]] && echo "Arguements Needed For Client API Functionality | ClientAPI H For More Information" >&2 && return 1
     case "${1:-NULL}" in 
         ""|"NULL"|"null")
-            echo "Desired API Operation Required. ClientAPI H For More Information" >&2 
+            printf '%s\n' "[ERROR] Desired API Operation Required. ClientAPI H For More Information" >&2 
             return 1
         ;;
         *)
@@ -141,6 +135,7 @@ ClientAPI() {
             ## Use Nested Case For Speed Filter Of Operation
             case "${APIOpertaion}" in 
                 "HELP"|"help"|"h"|"H")
+                    ## Use Echo Instead Of Printf Because Lazy
                     echo -e "\n
                     ClientAPI | Pterodactyl Api Wrapper Help Menu:\n
                         Syntax: ClientAPI <Command> <Command Arguements>\n
@@ -224,7 +219,7 @@ ClientAPI() {
                 "SENDCOMMAND"|"sendcommand"|"cmd"|"CMD")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            echo "Command Payload Required. ClientAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Command Payload Required. ClientAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
@@ -235,7 +230,7 @@ ClientAPI() {
                 "POWERSTATE"|"powerstate"|"pwr"|"PWR")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            echo "Power State Payload Required. ClientAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Power State Payload Required. ClientAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
@@ -249,7 +244,7 @@ ClientAPI() {
                 "CREATEDATABASE"|"createdatabase"|"cdb"|"CDB")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            echo "Database Creation Payload Required. ClientAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Database Creation Payload Required. ClientAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
@@ -260,7 +255,7 @@ ClientAPI() {
                 "ROTATEDATABASEPASSWORD"|"rotatedatabasepassword"|"rdbp"|"RDBP")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            echo "Target Database Required. ClientAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target Database Required. ClientAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
@@ -271,7 +266,7 @@ ClientAPI() {
                 "DELETEDATABASE"|"deleteatabase"|"ddb"|"DDB")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            echo "Target Database Required. ClientAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target Database Required. ClientAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
@@ -288,13 +283,13 @@ ClientAPI() {
                 "ALLOCOP"|"allocop"|"ao"|"AO")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            echo "Target Allocation Required. ClientAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target Allocation Required. ClientAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
                             case "${3:-NULL}" in 
                                 ""|"NULL"|"null")
-                                    echo "Allocation Operation Payload Required. ClientAPI H For More Information" >&2 
+                                    printf '%s\n' "[ERROR] Allocation Operation Payload Required. ClientAPI H For More Information" >&2 
                                     return 1
                                 ;;
                                 *)
@@ -317,13 +312,13 @@ ClientAPI() {
                 "UPDATESCHEDULE"|"updateschedule"|"usch"|"USCH")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            echo "Target Schedule Required. ClientAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target Schedule Required. ClientAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
                             case "${3:-NULL}" in 
                                 ""|"NULL"|"null")
-                                    echo "Schedule Update Operation Payload Required. ClientAPI H For More Information" >&2 
+                                    printf '%s\n' "[ERROR] Schedule Update Operation Payload Required. ClientAPI H For More Information" >&2 
                                     return 1
                                 ;;
                                 *)
@@ -343,19 +338,19 @@ ClientAPI() {
                 "UPDATETASK"|"updatetask"|"utsk"|"UTSK")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            echo "Target Schedule Required. ClientAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target Schedule Required. ClientAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
                             case "${3:-NULL}" in 
                                 ""|"NULL"|"null")
-                                    echo "Target Task Required. ClientAPI H For More Information" >&2 
+                                    printf '%s\n' "[ERROR] Target Task Required. ClientAPI H For More Information" >&2 
                                     return 1
                                 ;;
                                 *)
                                     case "${4:-NULL}" in
                                         ""|"NULL"|"null")
-                                            echo "Task Update Payload Required. ClientAPI H For More Information" >&2 
+                                            printf '%s\n' "[ERROR] Task Update Payload Required. ClientAPI H For More Information" >&2 
                                             return 1
                                         ;;
                                         *)
@@ -371,13 +366,13 @@ ClientAPI() {
                 "DELETETASK"|"deletetask"|"dtsk"|"DTSK")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            echo "Target Schedule Required. ClientAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target Schedule Required. ClientAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
                             case "${3:-NULL}" in 
                                 ""|"NULL"|"null")
-                                    echo "Target Task To Delete Required. ClientAPI H For More Information" >&2 
+                                    printf '%s\n' "[ERROR] Target Task To Delete Required. ClientAPI H For More Information" >&2 
                                     return 1
                                 ;;
                                 *)
@@ -409,7 +404,7 @@ ClientAPI() {
                 "EDITSTART"|"editstart"|"es"|"ES")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            echo "Startup Payload Required. ClientAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Startup Payload Required. ClientAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
@@ -423,7 +418,7 @@ ClientAPI() {
                 "RENAMESERVER"|"renameserver"|"rens"|"RENS")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            echo "Server Rename Payload Required. ClientAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Server Rename Payload Required. ClientAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
@@ -431,7 +426,7 @@ ClientAPI() {
                         ;;
                     esac
                 ;;
-                *) echo -e "[ERROR] Invalid Arguement" >&2 ;; ## Obviously you didn't listen and put something stupid.
+                *) printf '%s\n' "[ERROR] Invalid Arguement" >&2 ;; ## Obviously you didn't listen and put something stupid.
             esac
         ;;
     esac
@@ -461,7 +456,7 @@ ApplicationAPI() {
     local APIOpertaion
     case "${1:-NULL}" in
         ""|"NULL"|"null")
-            echo "Desired API Operation Required. ClientAPI H For More Information" >&2 
+            printf '%s\n' "[ERROR] Desired API Operation Required. ClientAPI H For More Information" >&2 
             return 1
         ;;
         *)
@@ -528,7 +523,7 @@ ApplicationAPI() {
                 "PASSPORTCHECK"|"passportcheck"|"ppc"|"PPC")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            echo "Target External User ID Required. ApplicationAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target External User ID Required. ApplicationAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
@@ -542,7 +537,7 @@ ApplicationAPI() {
                 "NODECHECK"|"nodecheck"|"NCK"|"nck")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            echo "Target Node ID Required. ApplicationAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target Node ID Required. ApplicationAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
@@ -553,13 +548,13 @@ ApplicationAPI() {
                 "NODEALLOC"|"nodealloc"|"NAL"|"nal")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            echo "Target Node ID Required. ApplicationAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target Node ID Required. ApplicationAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
                             case "${3:-NULL}" in 
                                 ""|"NULL"|"null")
-                                    echo "Target Node Allocation Page Required. ApplicationAPI H For More Information" >&2 
+                                    printf '%s\n' "[ERROR] Target Node Allocation Page Required. ApplicationAPI H For More Information" >&2 
                                     return 1
                                 ;;
                                 *)
@@ -576,7 +571,7 @@ ApplicationAPI() {
                 "DESTINATIONDETAILS"|"destinationdetails"|"DT"|"dt")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            echo "Location ID Required. ApplicationAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Location ID Required. ApplicationAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
@@ -590,7 +585,7 @@ ApplicationAPI() {
                 "SERVERCHECK"|"servercheck"|"SCK"|"sck")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            echo "Target Server ID Required. ApplicationAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target Server ID Required. ApplicationAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
@@ -601,7 +596,7 @@ ApplicationAPI() {
                 "SERVERFOERIGNCHECK"|"serverforeigncheck"|"SFCK"|"sfck")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            echo "Target External Server ID Required. ApplicationAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target External Server ID Required. ApplicationAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
@@ -612,13 +607,13 @@ ApplicationAPI() {
                 "SERVERPATCH"|"serverpatch"|"SRVP"|"srvp")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            echo "Target Server ID Required. ApplicationAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target Server ID Required. ApplicationAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
                             case "${3:-NULL}" in 
                                 ""|"NULL"|"null")
-                                    echo "Server Patch Payload Required. ApplicationAPI H For More Information" >&2 
+                                    printf '%s\n' "[ERROR] Server Patch Payload Required. ApplicationAPI H For More Information" >&2 
                                     return 1
                                 ;;
                                 *)
@@ -632,13 +627,13 @@ ApplicationAPI() {
                 "SERVERPATCHBUILD"|"serverpatchbuild"|"SRVPB"|"srvpb")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            echo "Target Server ID Required. ApplicationAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target Server ID Required. ApplicationAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
                             case "${3:-NULL}" in 
                                 ""|"NULL"|"null")
-                                    echo "Server Build Payload Required. ApplicationAPI H For More Information" >&2 
+                                    printf '%s\n' "[ERROR] Server Build Payload Required. ApplicationAPI H For More Information" >&2 
                                     return 1
                                 ;;
                                 *)
@@ -652,13 +647,13 @@ ApplicationAPI() {
                 "SERVERPATCHSTART"|"serverpatchstart"|"SRVPS"|"srvps")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            echo "Target Server ID Required. ApplicationAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target Server ID Required. ApplicationAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
                             case "${3:-NULL}" in 
                                 ""|"NULL"|"null")
-                                    echo "Server Start Patch Payload Required. ApplicationAPI H For More Information" >&2 
+                                    printf '%s\n' "[ERROR] Server Start Patch Payload Required. ApplicationAPI H For More Information" >&2 
                                     return 1
                                 ;;
                                 *)
@@ -672,7 +667,7 @@ ApplicationAPI() {
                 "SERVERDATABASELIST"|"serverdatabaselist"|"SDBL"|"sdbl")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            echo "Target External Server ID Required. ApplicationAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target External Server ID Required. ApplicationAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
@@ -683,13 +678,13 @@ ApplicationAPI() {
                 "SERVERDATABASECHECK"|"serverdatabasecheck"|"SDBCK"|"sdbck")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            echo "Target Server ID Required. ApplicationAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target Server ID Required. ApplicationAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
                             case "${3:-NULL}" in 
                                 ""|"NULL"|"null")
-                                    echo "Target Database ID Required. ApplicationAPI H For More Information" >&2 
+                                    printf '%s\n' "[ERROR] Target Database ID Required. ApplicationAPI H For More Information" >&2 
                                     return 1
                                 ;;
                                 *)
@@ -703,7 +698,7 @@ ApplicationAPI() {
                 "SERVERDATABASECREATE"|"serverdatabasecreate"|"SDBCRT"|"sdbcrt")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            echo "Target Server ID Required. ApplicationAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target Server ID Required. ApplicationAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
@@ -714,13 +709,13 @@ ApplicationAPI() {
                 "SERVERDATABASEPASSWORD"|"serverdatabasepassword"|"SDBPWD"|"sdbpwd")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            echo "Target Server ID Required. ApplicationAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target Server ID Required. ApplicationAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
                             case "${3:-NULL}" in 
                                 ""|"NULL"|"null")
-                                    echo "Target Database ID Required. ApplicationAPI H For More Information" >&2 
+                                    printf '%s\n' "[ERROR] Target Database ID Required. ApplicationAPI H For More Information" >&2 
                                     return 1
                                 ;;
                                 *)
@@ -734,13 +729,13 @@ ApplicationAPI() {
                 "SERVERDATABASEDELETE"|"serverdatabasedelete"|"SDBDL"|"sdbdl")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            echo "Target Server ID Required. ApplicationAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target Server ID Required. ApplicationAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
                             case "${3:-NULL}" in 
                                 ""|"NULL"|"null")
-                                    echo "Target Database ID Required. ApplicationAPI H For More Information" >&2 
+                                    printf '%s\n' "[ERROR] Target Database ID Required. ApplicationAPI H For More Information" >&2 
                                     return 1
                                 ;;
                                 *)
@@ -754,7 +749,7 @@ ApplicationAPI() {
                 "REINSTALLSERVER"|"reinstallserver"|"RESRV"|"resrv")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            echo "Target Server ID Required. ApplicationAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target Server ID Required. ApplicationAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
@@ -762,7 +757,7 @@ ApplicationAPI() {
                         ;;
                     esac
                 ;;
-                *) echo -e "[ERROR] Invalid Arguement" >&2 ;; ## Obviously you didn't listen and put something stupid.
+                *) printf '%s\n' "[ERROR] Invalid Arguement" >&2 ;; ## Obviously you didn't listen and put something stupid.
             esac
         ;;     
     esac
