@@ -4,22 +4,48 @@
 ## DO NOT REMOVE THESE!
 ## This is to prevent shellcheck from complaining about false positive issues like unused variables.
 
+#############################################
+## Author: Globbin/Christopher Nichols     ##
+## Website: https://nightowlservers.net    ##
+## License: GNU GENERAL PUBLIC LICENSE V3  ##
+#############################################
+
+
 ## Crash On Fail
 set -e pipefail
 
-## Setup Ptero Vars
+##############################
+## Connectivity Information ##
+################################################################################################
+##  You Have To Change The Below Variables To Tell The Wrapper How And Where To Connect       ##
+##  You Need The Client API Key for ClientAPI And The Application API Key for ApplicationAPI  ##
+##  The TargetUUID Only Needs To Be The First 8 Characters Of The Server UUID In Question     ##
+################################################################################################
 HostName="Nightowl Servers"
 HostDomain="nightowlservers.net"
+PanelSubdomain='panel'
+## While This Seems Silly, It's More Flexible Than Throwing A Full URL
+PanelHost="${PanelSubdomain}.${HostDomain}"
+## This Is Where Your API Keys Go
 ClientToken='MyClientAPIKey'
 AppToken='MyApplicationAPIKey'
-PanelHost="panel.${HostDomain}"
-TargetUUID="${P_SERVER_UUID::8}"
+## [::8] Limits The Interpreted Sting To THe First 8 Characters
+TargetUUID="${SERVER_UUID::8}"
 
+
+
+##############################
+## Connectivity Information ##
+################################################################################################
+##  You Have To Change The Below Variables To Tell The Wrapper How And Where To Connect       ##
+##  You Need The Client API Key for ClientAPI And The Application API Key for ApplicationAPI  ##
+##  The TargetUUID Only Needs To Be The First 8 Characters Of The Server UUID In Question     ##
+################################################################################################
 CurlOp() { ## This Is The Curl Worker Function
     ## Declare Local Working Variables
     local Token && local TargetURL && local OperationType && local Payload
     ## Sanitize Inputs
-    #[[  -z "${*}" ]] && echo "Arguements Needed For Curl API Functionality" >&2 && return 1
+    [[  -z "${*}" ]] && echo "Arguements Needed For Curl API Functionality" >&2 && return 1
     case "${1:-NULL}" in
         ""|"null"|"NULL") ## Null Value
             echo "Target URL Cannot Be Null" >&2
@@ -411,17 +437,26 @@ ClientAPI() {
     esac
 } ## End Of Function
 
+###############################################################################################
+##                                                                                           ##
+##  NOTE: Application API Permissions                                                        ##
+##                                                                                           ##
+##  For The Application API, It Is Advised To ONLY Give Read, If Anything, Permissions For   ##
+##  Anything Except The Servers And Server Database Permissions. Those Get Read/Write Perms  ##
+##                                                                                           ##
+##  This Is To Prevent Catastrophic Damage Due To Someone Getting Ahold Of The Key. They'll  ##
+##  Be Stuck Only Able To Manipulate Servers, Not Stuff Like Nests, Locations, Or Nodes.     ##
+##                                                                                           ##
+###############################################################################################
+
 ApplicationAPI() {
     ################################################################
     ##    ApplicationAPI - PTERODACTYL APPLICATION API WRAPPER    ##
     ################################################################
     ## Setup the Application Token, Target Server, And TargetURL
     local App_Token && App_Token="${ClientToken}" && readonly App_Token
-    local UrlTarget && UrlTarget="https://${PanelHost}/api/application"
     ## The Emperor has graced you with read perms, and only RW on servers and server databases.
     ## Do not forget this Astartes.
-    ## Setup the Application Token, Target Server, And TargetURL
-    local App_Token && App_Token="${ClientToken}" && readonly App_Token
     local UrlTarget && UrlTarget="https://${PanelHost}/api/application"
     local APIOpertaion
     case "${1:-NULL}" in
