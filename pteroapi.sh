@@ -29,7 +29,7 @@ PanelHost="${PanelSubdomain}.${HostDomain}"
 ## This Is Where Your API Keys Go
 ClientToken='MyClientAPIKey'
 AppToken='MyApplicationAPIKey'
-## [::8] Limits The Interpreted Sting To THe First 8 Characters
+## [::8] Limits The Interpreted Sting To The First 8 Characters
 TargetUUID="${SERVER_UUID::8}"
 
 
@@ -45,7 +45,7 @@ CurlOp() { ## This Is The Curl Worker Function
     ## Declare Local Working Variables
     local Token && local TargetURL && local OperationType && local Payload
     ## Sanitize Inputs
-    [[  -z "${*}" ]] && echo "Arguements Needed For Curl API Functionality" >&2 && return 1
+    #[[  -z "${*}" ]] && echo "Arguements Needed For Curl API Functionality" >&2 && return 1
     case "${1:-NULL}" in
         ""|"null"|"NULL") ## Null Value
             printf '%s\n' "Target URL Cannot Be Null" >&2
