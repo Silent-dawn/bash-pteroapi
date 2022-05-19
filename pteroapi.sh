@@ -34,7 +34,7 @@ TargetUUID="${SERVER_UUID::8}"
 
 
 
-##############################
+######################
 ## CURL Information ##
 ################################################################################################
 ##  This Curl Worker Function Does NOT Send Requests To The API If An Error Is Found          ##
