@@ -10,6 +10,10 @@
 ## License: GNU GENERAL PUBLIC LICENSE V3  ##
 #############################################
 
+##
+## Todo: Add Error Worker Function
+##
+
 
 ## Crash On Fail
 set -e pipefail
@@ -122,7 +126,7 @@ ClientAPI() {
     local Client_Token && Client_Token="${ClientToken}" && readonly Client_Token
     local TargetServer && TargetServer="${TargetUUID}"
     local UrlTarget && UrlTarget="https://${PanelHost}/api/client/servers/${TargetServer}"
-    local APIOpertaion
+    local APIOperation
     ## Sanitize Inputs
     #[[  -z "${*}" ]] && echo "Arguements Needed For Client API Functionality | ClientAPI H For More Information" >&2 && return 1
     case "${1:-NULL}" in 
@@ -131,9 +135,9 @@ ClientAPI() {
             return 1
         ;;
         *)
-            APIOpertaion="${1}"
+            APIOperation="${1}"
             ## Use Nested Case For Speed Filter Of Operation
-            case "${APIOpertaion}" in 
+            case "${APIOperation}" in 
                 "HELP"|"help"|"h"|"H")
                     ## Use Echo Instead Of Printf Because Lazy
                     echo -e "\n
@@ -453,15 +457,15 @@ ApplicationAPI() {
     ## The Emperor has graced you with read perms, and only RW on servers and server databases.
     ## Do not forget this Astartes.
     local UrlTarget && UrlTarget="https://${PanelHost}/api/application"
-    local APIOpertaion
+    local APIOperation
     case "${1:-NULL}" in
         ""|"NULL"|"null")
             printf '%s\n' "[ERROR] Desired API Operation Required. ClientAPI H For More Information" >&2 
             return 1
         ;;
         *)
-            APIOpertaion="${1}"
-            case "${1}" in
+            APIOperation="${1}"
+            case "${APIOperation}" in
                 "HELP"|"help"|"h"|"H") ## Help menu
                     echo -e "\n
                     ApplicationAPI | Pterodactyl App API Help Menu:\n
