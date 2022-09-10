@@ -121,7 +121,7 @@ CurlOp() { ## This Is The Curl Worker Function
 
 PteroAPI() {
     ###############################################
-    ##        ClientAPI API Wrapper Tool         ##
+    ##        PteroAPI API Wrapper Tool         ##
     ###############################################
     ## Setup the Client Token, Target Server, And TargetURL
     local Client_Token && Client_Token="${ClientToken}" && readonly Client_Token
@@ -129,10 +129,10 @@ PteroAPI() {
     local UrlTarget && UrlTarget="https://${PanelHost}/api/client/servers/${TargetServer}"
     local APIOperation
     ## Sanitize Inputs
-    #[[  -z "${*}" ]] && echo "Arguements Needed For Client API Functionality | ClientAPI H For More Information" >&2 && return 1
+    #[[  -z "${*}" ]] && echo "Arguements Needed For Client API Functionality | PteroAPI H For More Information" >&2 && return 1
     case "${1:-NULL}" in 
         ""|"NULL"|"null")
-            printf '%s\n' "[ERROR] Desired API Operation Required. ClientAPI H For More Information" >&2 
+            printf '%s\n' "[ERROR] Desired API Operation Required. PteroAPI H For More Information" >&2 
             return 1
         ;;
         *)
@@ -265,7 +265,7 @@ PteroAPI() {
                 "SENDCOMMAND"|"sendcommand"|"cmd"|"CMD")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            printf '%s\n' "[ERROR] Command Payload Required. ClientAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Command Payload Required. PteroAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
@@ -276,7 +276,7 @@ PteroAPI() {
                 "POWERSTATE"|"powerstate"|"pwr"|"PWR")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            printf '%s\n' "[ERROR] Power State Payload Required. ClientAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Power State Payload Required. PteroAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
@@ -290,7 +290,7 @@ PteroAPI() {
                 "CREATEDATABASE"|"createdatabase"|"cdb"|"CDB")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            printf '%s\n' "[ERROR] Database Creation Payload Required. ClientAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Database Creation Payload Required. PteroAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
@@ -301,7 +301,7 @@ PteroAPI() {
                 "ROTATEDATABASEPASSWORD"|"rotatedatabasepassword"|"rdbp"|"RDBP")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            printf '%s\n' "[ERROR] Target Database Required. ClientAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target Database Required. PteroAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
@@ -312,7 +312,7 @@ PteroAPI() {
                 "DELETEDATABASE"|"deleteatabase"|"ddb"|"DDB")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            printf '%s\n' "[ERROR] Target Database Required. ClientAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target Database Required. PteroAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
@@ -329,13 +329,13 @@ PteroAPI() {
                 "ALLOCOP"|"allocop"|"ao"|"AO")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            printf '%s\n' "[ERROR] Target Allocation Required. ClientAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target Allocation Required. PteroAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
                             case "${3:-NULL}" in 
                                 ""|"NULL"|"null")
-                                    printf '%s\n' "[ERROR] Allocation Operation Payload Required. ClientAPI H For More Information" >&2 
+                                    printf '%s\n' "[ERROR] Allocation Operation Payload Required. PteroAPI H For More Information" >&2 
                                     return 1
                                 ;;
                                 *)
@@ -358,13 +358,13 @@ PteroAPI() {
                 "UPDATESCHEDULE"|"updateschedule"|"usch"|"USCH")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            printf '%s\n' "[ERROR] Target Schedule Required. ClientAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target Schedule Required. PteroAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
                             case "${3:-NULL}" in 
                                 ""|"NULL"|"null")
-                                    printf '%s\n' "[ERROR] Schedule Update Operation Payload Required. ClientAPI H For More Information" >&2 
+                                    printf '%s\n' "[ERROR] Schedule Update Operation Payload Required. PteroAPI H For More Information" >&2 
                                     return 1
                                 ;;
                                 *)
@@ -384,19 +384,19 @@ PteroAPI() {
                 "UPDATETASK"|"updatetask"|"utsk"|"UTSK")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            printf '%s\n' "[ERROR] Target Schedule Required. ClientAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target Schedule Required. PteroAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
                             case "${3:-NULL}" in 
                                 ""|"NULL"|"null")
-                                    printf '%s\n' "[ERROR] Target Task Required. ClientAPI H For More Information" >&2 
+                                    printf '%s\n' "[ERROR] Target Task Required. PteroAPI H For More Information" >&2 
                                     return 1
                                 ;;
                                 *)
                                     case "${4:-NULL}" in
                                         ""|"NULL"|"null")
-                                            printf '%s\n' "[ERROR] Task Update Payload Required. ClientAPI H For More Information" >&2 
+                                            printf '%s\n' "[ERROR] Task Update Payload Required. PteroAPI H For More Information" >&2 
                                             return 1
                                         ;;
                                         *)
@@ -412,13 +412,13 @@ PteroAPI() {
                 "DELETETASK"|"deletetask"|"dtsk"|"DTSK")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            printf '%s\n' "[ERROR] Target Schedule Required. ClientAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target Schedule Required. PteroAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
                             case "${3:-NULL}" in 
                                 ""|"NULL"|"null")
-                                    printf '%s\n' "[ERROR] Target Task To Delete Required. ClientAPI H For More Information" >&2 
+                                    printf '%s\n' "[ERROR] Target Task To Delete Required. PteroAPI H For More Information" >&2 
                                     return 1
                                 ;;
                                 *)
@@ -450,7 +450,7 @@ PteroAPI() {
                 "EDITSTART"|"editstart"|"es"|"ES")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            printf '%s\n' "[ERROR] Startup Payload Required. ClientAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Startup Payload Required. PteroAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
@@ -464,7 +464,7 @@ PteroAPI() {
                 "RENAMESERVER"|"renameserver"|"rens"|"RENS")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            printf '%s\n' "[ERROR] Server Rename Payload Required. ClientAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Server Rename Payload Required. PteroAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
@@ -481,7 +481,7 @@ PteroAPI() {
                 "PASSPORTCHECK"|"passportcheck"|"ppc"|"PPC")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            printf '%s\n' "[ERROR] Target External User ID Required. ApplicationAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target External User ID Required. PteroAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
@@ -495,7 +495,7 @@ PteroAPI() {
                 "NODECHECK"|"nodecheck"|"NCK"|"nck")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            printf '%s\n' "[ERROR] Target Node ID Required. ApplicationAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target Node ID Required. PteroAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
@@ -506,7 +506,7 @@ PteroAPI() {
                 "NODEALLOC"|"nodealloc"|"NAL"|"nal")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            printf '%s\n' "[ERROR] Target Node ID Required. ApplicationAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target Node ID Required. PteroAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
@@ -528,7 +528,7 @@ PteroAPI() {
                 "DESTINATIONDETAILS"|"destinationdetails"|"DT"|"dt")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            printf '%s\n' "[ERROR] Location ID Required. ApplicationAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Location ID Required. PteroAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
@@ -542,7 +542,7 @@ PteroAPI() {
                 "SERVERCHECK"|"servercheck"|"SCK"|"sck")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            printf '%s\n' "[ERROR] Target Server ID Required. ApplicationAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target Server ID Required. PteroAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
@@ -553,7 +553,7 @@ PteroAPI() {
                 "SERVERFOERIGNCHECK"|"serverforeigncheck"|"SFCK"|"sfck")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            printf '%s\n' "[ERROR] Target External Server ID Required. ApplicationAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target External Server ID Required. PteroAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
@@ -564,13 +564,13 @@ PteroAPI() {
                 "SERVERPATCH"|"serverpatch"|"SRVP"|"srvp")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            printf '%s\n' "[ERROR] Target Server ID Required. ApplicationAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target Server ID Required. PteroAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
                             case "${3:-NULL}" in 
                                 ""|"NULL"|"null")
-                                    printf '%s\n' "[ERROR] Server Patch Payload Required. ApplicationAPI H For More Information" >&2 
+                                    printf '%s\n' "[ERROR] Server Patch Payload Required. PteroAPI H For More Information" >&2 
                                     return 1
                                 ;;
                                 *)
@@ -584,13 +584,13 @@ PteroAPI() {
                 "SERVERPATCHBUILD"|"serverpatchbuild"|"SRVPB"|"srvpb")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            printf '%s\n' "[ERROR] Target Server ID Required. ApplicationAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target Server ID Required. PteroAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
                             case "${3:-NULL}" in 
                                 ""|"NULL"|"null")
-                                    printf '%s\n' "[ERROR] Server Build Payload Required. ApplicationAPI H For More Information" >&2 
+                                    printf '%s\n' "[ERROR] Server Build Payload Required. PteroAPI H For More Information" >&2 
                                     return 1
                                 ;;
                                 *)
@@ -604,13 +604,13 @@ PteroAPI() {
                 "SERVERPATCHSTART"|"serverpatchstart"|"SRVPS"|"srvps")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            printf '%s\n' "[ERROR] Target Server ID Required. ApplicationAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target Server ID Required. PteroAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
                             case "${3:-NULL}" in 
                                 ""|"NULL"|"null")
-                                    printf '%s\n' "[ERROR] Server Start Patch Payload Required. ApplicationAPI H For More Information" >&2 
+                                    printf '%s\n' "[ERROR] Server Start Patch Payload Required. PteroAPI H For More Information" >&2 
                                     return 1
                                 ;;
                                 *)
@@ -624,7 +624,7 @@ PteroAPI() {
                 "SERVERDATABASELIST"|"serverdatabaselist"|"SDBL"|"sdbl")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            printf '%s\n' "[ERROR] Target External Server ID Required. ApplicationAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target External Server ID Required. PteroAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
@@ -635,13 +635,13 @@ PteroAPI() {
                 "SERVERDATABASECHECK"|"serverdatabasecheck"|"SDBCK"|"sdbck")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            printf '%s\n' "[ERROR] Target Server ID Required. ApplicationAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target Server ID Required. PteroAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
                             case "${3:-NULL}" in 
                                 ""|"NULL"|"null")
-                                    printf '%s\n' "[ERROR] Target Database ID Required. ApplicationAPI H For More Information" >&2 
+                                    printf '%s\n' "[ERROR] Target Database ID Required. PteroAPI H For More Information" >&2 
                                     return 1
                                 ;;
                                 *)
@@ -655,7 +655,7 @@ PteroAPI() {
                 "SERVERDATABASECREATE"|"serverdatabasecreate"|"SDBCRT"|"sdbcrt")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            printf '%s\n' "[ERROR] Target Server ID Required. ApplicationAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target Server ID Required. PteroAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
@@ -666,13 +666,13 @@ PteroAPI() {
                 "SERVERDATABASEPASSWORD"|"serverdatabasepassword"|"SDBPWD"|"sdbpwd")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            printf '%s\n' "[ERROR] Target Server ID Required. ApplicationAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target Server ID Required. PteroAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
                             case "${3:-NULL}" in 
                                 ""|"NULL"|"null")
-                                    printf '%s\n' "[ERROR] Target Database ID Required. ApplicationAPI H For More Information" >&2 
+                                    printf '%s\n' "[ERROR] Target Database ID Required. PteroAPI H For More Information" >&2 
                                     return 1
                                 ;;
                                 *)
@@ -686,13 +686,13 @@ PteroAPI() {
                 "SERVERDATABASEDELETE"|"serverdatabasedelete"|"SDBDL"|"sdbdl")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            printf '%s\n' "[ERROR] Target Server ID Required. ApplicationAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target Server ID Required. PteroAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
                             case "${3:-NULL}" in 
                                 ""|"NULL"|"null")
-                                    printf '%s\n' "[ERROR] Target Database ID Required. ApplicationAPI H For More Information" >&2 
+                                    printf '%s\n' "[ERROR] Target Database ID Required. PteroAPI H For More Information" >&2 
                                     return 1
                                 ;;
                                 *)
@@ -706,7 +706,7 @@ PteroAPI() {
                 "REINSTALLSERVER"|"reinstallserver"|"RESRV"|"resrv")
                     case "${2:-NULL}" in 
                         ""|"NULL"|"null")
-                            printf '%s\n' "[ERROR] Target Server ID Required. ApplicationAPI H For More Information" >&2 
+                            printf '%s\n' "[ERROR] Target Server ID Required. PteroAPI H For More Information" >&2 
                             return 1
                         ;;
                         *)
