@@ -32,12 +32,9 @@ PanelSubdomain='panel'
 PanelHost="${PanelSubdomain}.${HostDomain}"
 ## This Is Where Your API Keys Go
 ClientToken='MyClientAPIKey'
-## Deprecated Application API Key
-#AppToken='MyApplicationAPIKey'
+AppToken='MyApplicationAPIKey'
 ## [::8] Limits The Interpreted Sting To The First 8 Characters
 TargetUUID="${SERVER_UUID::8}"
-
-
 
 ######################
 ## CURL Information ##
@@ -473,9 +470,11 @@ PteroAPI() {
                     esac
                 ;;
                 "ROLECALL"|"rolecall"|"RC"|"rc"|"LISTSERVERS"|"listservers")
+                    UrlTarget="https://${PanelHost}/api/application"
                     CurlOp "${UrlTarget}/users" "${Client_Token}" "GET"
                 ;;
                 "BACKGROUNDCHECK"|"backgroundcheck"|"BGC"|"bgc")
+                    UrlTarget="https://${PanelHost}/api/application"
                     CurlOp "${UrlTarget}/users/${2}" "${Client_Token}" "GET"
                 ;;
                 "PASSPORTCHECK"|"passportcheck"|"ppc"|"PPC")
@@ -485,11 +484,13 @@ PteroAPI() {
                             return 1
                         ;;
                         *)
+                            UrlTarget="https://${PanelHost}/api/application"
                             CurlOp "${UrlTarget}/users/external/${2}" "${Client_Token}" "GET"
                         ;;
                     esac
                 ;;
                 "NODELIST"|"nodelist"|"NL"|"nl")
+                    UrlTarget="https://${PanelHost}/api/application"
                     CurlOp "${UrlTarget}/nodes" "${Client_Token}" "GET"
                 ;;
                 "NODECHECK"|"nodecheck"|"NCK"|"nck")
@@ -499,6 +500,7 @@ PteroAPI() {
                             return 1
                         ;;
                         *)
+                            UrlTarget="https://${PanelHost}/api/application"
                             CurlOp "${UrlTarget}/nodes/${2}" "${Client_Token}" "GET"
                         ;;
                     esac
@@ -510,6 +512,7 @@ PteroAPI() {
                             return 1
                         ;;
                         *)
+                            UrlTarget="https://${PanelHost}/api/application"
                             case "${3:-NULL}" in 
                                 ""|"NULL"|"null")
                                     CurlAPI "${UrlTarget}/nodes/${2}/allocations?per_page=500" "${SPANNER}" "GET"
@@ -523,6 +526,7 @@ PteroAPI() {
                     esac
                 ;;
                 "TRAVELOPTIONS"|"traveloptions"|"TO"|"to")
+                    UrlTarget="https://${PanelHost}/api/application"
                     CurlOp "${UrlTarget}/locations" "${Client_Token}" "GET"
                 ;;
                 "DESTINATIONDETAILS"|"destinationdetails"|"DT"|"dt")
@@ -532,11 +536,13 @@ PteroAPI() {
                             return 1
                         ;;
                         *)
+                            UrlTarget="https://${PanelHost}/api/application"
                             CurlOp "${UrlTarget}/locations/${2}" "${Client_Token}" "GET"
                         ;;
                     esac
                 ;;
                 "SERVERLIST"|"serverlist"|"SL"|"sl")
+                    UrlTarget="https://${PanelHost}/api/application"
                     CurlOp "${UrlTarget}/servers" "${Client_Token}" "GET"
                 ;;
                 "SERVERCHECK"|"servercheck"|"SCK"|"sck")
@@ -546,6 +552,7 @@ PteroAPI() {
                             return 1
                         ;;
                         *)
+                            UrlTarget="https://${PanelHost}/api/application"
                             CurlOp "${UrlTarget}/servers/${2}?include=allocations,user,location,node,databases" "${Client_Token}" "GET"
                         ;;
                     esac
@@ -557,6 +564,7 @@ PteroAPI() {
                             return 1
                         ;;
                         *)
+                            UrlTarget="https://${PanelHost}/api/application"
                             CurlOp "${UrlTarget}/servers/external/${2}" "${Client_Token}" "GET"
                         ;;
                     esac
@@ -574,6 +582,7 @@ PteroAPI() {
                                     return 1
                                 ;;
                                 *)
+                                    UrlTarget="https://${PanelHost}/api/application"
                                     CurlOp "${UrlTarget}/servers/${2}/details" "${Client_Token}" "PATCH" "${3}" ## ${3} MUST BE A VALID JSON BODY
                                 ;;
                             
@@ -594,6 +603,7 @@ PteroAPI() {
                                     return 1
                                 ;;
                                 *)
+                                    UrlTarget="https://${PanelHost}/api/application"
                                     CurlOp "${UrlTarget}/servers/${2}/build" "${Client_Token}" "PATCH" "${3}" ## ${3} MUST BE A VALID JSON BODY
                                 ;;
                             
@@ -614,6 +624,7 @@ PteroAPI() {
                                     return 1
                                 ;;
                                 *)
+                                    UrlTarget="https://${PanelHost}/api/application"
                                     CurlOp "${UrlTarget}/servers/${2}/startup" "${Client_Token}" "PATCH" "${3}" ## ${3} MUST BE A VALID JSON BODY
                                 ;;
                             
@@ -628,6 +639,7 @@ PteroAPI() {
                             return 1
                         ;;
                         *)
+                            UrlTarget="https://${PanelHost}/api/application"
                             CurlOp "${UrlTarget}/servers/${2}/databases?include=password,host" "${Client_Token}" "GET"
                         ;;
                     esac
@@ -645,6 +657,7 @@ PteroAPI() {
                                     return 1
                                 ;;
                                 *)
+                                    UrlTarget="https://${PanelHost}/api/application"
                                     CurlOp "${UrlTarget}/servers/${2}/databases/${3}" "${Client_Token}" "GET"
                                 ;;
                             
@@ -659,6 +672,7 @@ PteroAPI() {
                             return 1
                         ;;
                         *)
+                            UrlTarget="https://${PanelHost}/api/application"
                             CurlOp "${UrlTarget}/servers/${2}/databases" "${Client_Token}" "POST"
                         ;;
                     esac
@@ -676,6 +690,7 @@ PteroAPI() {
                                     return 1
                                 ;;
                                 *)
+                                    UrlTarget="https://${PanelHost}/api/application"
                                     CurlOp "${UrlTarget}/servers/${2}/databases/${3}/reset-password" "${Client_Token}" "POST"
                                 ;;
                             
@@ -696,6 +711,7 @@ PteroAPI() {
                                     return 1
                                 ;;
                                 *)
+                                    UrlTarget="https://${PanelHost}/api/application"
                                     CurlOp "${UrlTarget}/servers/${2}/databases/${3}" "${Client_Token}" "DELETE"
                                 ;;
                             
@@ -710,6 +726,7 @@ PteroAPI() {
                             return 1
                         ;;
                         *)
+                            UrlTarget="https://${PanelHost}/api/application"
                             CurlOp "${UrlTarget}/servers/${2}/reinstall" "${Client_Token}" "POST"
                         ;;
                     esac
