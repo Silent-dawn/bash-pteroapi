@@ -558,11 +558,10 @@ ApplicationAPI() {
                         *)
                             case "${3:-NULL}" in 
                                 ""|"NULL"|"null")
-                                    printf '%s\n' "[ERROR] Target Node Allocation Page Required. ApplicationAPI H For More Information" >&2 
-                                    return 1
+                                    CurlAPI "${UrlTarget}/nodes/${2}/allocations?per_page=500" "${SPANNER}" "GET"
                                 ;;
                                 *)
-                                    CurlOp "${UrlTarget}/nodes/${2}/allocations?per_page=500&page=${3}" "${App_Token}" "GET"
+                                    CurlAPI "${UrlTarget}/nodes/${2}/allocations?per_page=500&page=${3}" "${SPANNER}" "GET"
                                 ;;
                             
                             esac
@@ -593,7 +592,7 @@ ApplicationAPI() {
                             return 1
                         ;;
                         *)
-                            CurlOp "${UrlTarget}/servers/${2}" "${App_Token}" "GET"
+                            CurlOp "${UrlTarget}/servers/${2}?include=allocations,user,location,node,databases" "${App_Token}" "GET"
                         ;;
                     esac
                 ;;
@@ -761,7 +760,7 @@ ApplicationAPI() {
                         ;;
                     esac
                 ;;
-                *) printf '%s\n' "[ERROR] Invalid Arguement" >&2 ;; ## Obviously you didn't listen and put something stupid.
+                *) printf '%s\n' "[ERROR] Invalid Arguement" >&2 ;; ## Self Explanitory.
             esac
         ;;     
     esac
