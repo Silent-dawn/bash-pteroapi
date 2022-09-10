@@ -119,7 +119,7 @@ CurlOp() { ## This Is The Curl Worker Function
     esac
 } ## End Of Function
 
-ClientAPI() {
+PteroAPI() {
     ###############################################
     ##        ClientAPI API Wrapper Tool         ##
     ###############################################
@@ -142,109 +142,109 @@ ClientAPI() {
                 "HELP"|"help"|"h"|"H")
                     ## Use Echo Instead Of Printf Because Lazy
                     echo -e "\n
-                    ClientAPI | Pterodactyl Api Wrapper Help Menu:\n
-                        Syntax: ClientAPI <Command> <Command Arguements>\n
+                    PteroAPI | Pterodactyl Api Wrapper Help Menu:\n
+                        Syntax: PteroAPI <Command> <Command Arguements>\n
                     Valid Options:\n
                         [ H ] - Help\n
-                           EXAMPLE: ClientAPI H\n
+                           EXAMPLE: PteroAPI H\n
                         [ S ]  - Service Info\n
-                           EXAMPLE: ClientAPI S\n
+                           EXAMPLE: PteroAPI S\n
                         [ GRI ] - Get Resource Info\n
-                           EXAMPLE: ClientAPI GRI\n
+                           EXAMPLE: PteroAPI GRI\n
                         [ CMD ] - Send Command To Container\n
-                           EXAMPLE: ClientAPI CMD <COMMAND>\n
+                           EXAMPLE: PteroAPI CMD <COMMAND>\n
                         [ PWR ] - Set Power State\n
-                           EXAMPLE: ClientAPI PWR <POWER_STATE>\n
+                           EXAMPLE: PteroAPI PWR <POWER_STATE>\n
                         [ GDB ] - Get Databases\n
-                           EXAMPLE: ClientAPI GDB\n
+                           EXAMPLE: PteroAPI GDB\n
                         [ CDB ] - Create Database *\n
-                           EXAMPLE: ClientAPI CDB <PARAMETERS>\n
+                           EXAMPLE: PteroAPI CDB <PARAMETERS>\n
                         [ RDBP ] - Rotate Database Password\n
-                           EXAMPLE: ClientAPI RDBP\n
+                           EXAMPLE: PteroAPI RDBP\n
                         [ DDB ] - Delete Targeted Database\n
-                           EXAMPLE: ClientAPI DDB <TARGET_DATABASE>\n
+                           EXAMPLE: PteroAPI DDB <TARGET_DATABASE>\n
                         [ GA ] - Get Allocation\n
-                           EXAMPLE: ClientAPI GA\n
+                           EXAMPLE: PteroAPI GA\n
                         [ CA ] - Create Allocation\n
-                           EXAMPLE: ClientAPI CA\n
+                           EXAMPLE: PteroAPI CA\n
                         [ DA ] - Delete Allocation\n
-                           EXAMPLE: ClientAPI DA <ALLOCATION_ID>\n
+                           EXAMPLE: PteroAPI DA <ALLOCATION_ID>\n
                         [ AO ] - Allocation Operation  \n
-                           EXAMPLE: ClientAPI AO <ALLOCATION_ID> <PARAMETERS> * **\n
+                           EXAMPLE: PteroAPI AO <ALLOCATION_ID> <PARAMETERS> * **\n
                         [ GSCH ] - Get Schedules Information\n
-                           EXAMPLE: ClientAPI GSCH\n
+                           EXAMPLE: PteroAPI GSCH\n
                         [ CSCH ] - Create Schedule\n
-                           EXAMPLE: ClientAPI CSCH <PARAMETERS>\n
+                           EXAMPLE: PteroAPI CSCH <PARAMETERS>\n
                         [ GSCHD ] - Get Schedule Details\n
-                           EXAMPLE: ClientAPI GSCHD\n
+                           EXAMPLE: PteroAPI GSCHD\n
                         [ USCH ] - Update Schedule\n
-                           EXAMPLE: ClientAPI USCH <SCHEDULE_ID> <PARAMETERS>\n
+                           EXAMPLE: PteroAPI USCH <SCHEDULE_ID> <PARAMETERS>\n
                         [ DSCH ] - Delete Schedule\n
-                           EXAMPLE: ClientAPI DSCH <SCHEDULE_ID>\n
+                           EXAMPLE: PteroAPI DSCH <SCHEDULE_ID>\n
                         [ CTSK ] - Create Task\n
-                           EXAMPLE: ClientAPI CTSK <SCHEDULE_ID> <PARAMETERS>\n
+                           EXAMPLE: PteroAPI CTSK <SCHEDULE_ID> <PARAMETERS>\n
                         [ UTSK ] - Update Task\n
-                           EXAMPLE: ClientAPI UTSK <SCHEDULE_ID> <TASK_ID> <PARAMETERS>\n
+                           EXAMPLE: PteroAPI UTSK <SCHEDULE_ID> <TASK_ID> <PARAMETERS>\n
                         [ DTSK ] - Delete Task\n
-                           EXAMPLE: ClientAPI DTSK <SCHEDULE_ID> <TASK_ID>\n
+                           EXAMPLE: PteroAPI DTSK <SCHEDULE_ID> <TASK_ID>\n
                         [ GBCK ] - Get Backups\n
-                           EXAMPLE: ClientAPI GBCK\n
+                           EXAMPLE: PteroAPI GBCK\n
                         [ CBCK ] - Create Backup\n
-                           EXAMPLE: ClientAPI CBCK\n
+                           EXAMPLE: PteroAPI CBCK\n
                         [ GBCKD ] - Get Backup Details\n
-                           EXAMPLE: ClientAPI GBCKD <BACKUP_ID>\n
+                           EXAMPLE: PteroAPI GBCKD <BACKUP_ID>\n
                         [ GBCKL ] - Get Backup Download Link\n
-                           EXAMPLE: ClientAPI GBCKL <BACKUP_ID>\n
+                           EXAMPLE: PteroAPI GBCKL <BACKUP_ID>\n
                         [ DBCK ] - Delete Backup\n
-                           EXAMPLE: ClientAPI DBCK <BACKUP_ID>\n
+                           EXAMPLE: PteroAPI DBCK <BACKUP_ID>\n
                         [ LS ] - List Startup Variables\n
-                           EXAMPLE: ClientAPI LS\n
+                           EXAMPLE: PteroAPI LS\n
                         [ ES ] - Edit Startup Variable *\n
-                           EXAMPLE: ClientAPI ES <TARGET_VARIABLE> <PARAMETERS>\n
+                           EXAMPLE: PteroAPI ES <TARGET_VARIABLE> <PARAMETERS>\n
                         [ RS ] - Reinstall Server\n
-                           EXAMPLE: ClientAPI RS\n
+                           EXAMPLE: PteroAPI RS\n
                         [ RENS ] - Rename Server\n
-                           EXAMPLE: ClientAPI RENS <PARAMETERS>\n
+                           EXAMPLE: PteroAPI RENS <PARAMETERS>\n
                         [ RC ] - Rolecall: List Users\n
-                           EXAMPLE: ApplicationAPI RC\n
+                           EXAMPLE: PteroAPI RC\n
                         [ BGC ] - Background Check: Retrieve User Details\n
-                           EXAMPLE: ApplicationAPI BGC <USER_ID>\n
+                           EXAMPLE: PteroAPI BGC <USER_ID>\n
                         [ PPC ] - Passport Check: Retrieve User Details Using External ID\n
-                           EXAMPLE: ApplicationAPI PPC <EXTERNAL_USER_ID>\n
+                           EXAMPLE: PteroAPI PPC <EXTERNAL_USER_ID>\n
                         [ NL ] - Node List: List Nodes\n
-                           EXAMPLE: ApplicationAPI NL\n
+                           EXAMPLE: PteroAPI NL\n
                         [ NCK ] - Node Check: Retrieve Node Details\n
-                           EXAMPLE: ApplicationAPI NCK <NODE_ID>\n
+                           EXAMPLE: PteroAPI NCK <NODE_ID>\n
                         [ NAL ] - Node Allocations: Retrieve Node Allocations\n
-                           EXAMPLE: ApplicationAPI NAL <NODE_ID> <PAGE_NUMBER>\n
+                           EXAMPLE: PteroAPI NAL <NODE_ID> <PAGE_NUMBER>\n
                         [ TO ] - Travel Options: List Locations\n
-                           EXAMPLE: ApplicationAPI TO\n
+                           EXAMPLE: PteroAPI TO\n
                         [ DT ] - Destination Details: Retrieve Location Details\n
-                           EXAMPLE: ApplicationAPI DT <LOCATION_ID>\n
+                           EXAMPLE: PteroAPI DT <LOCATION_ID>\n
                         [ SL ] - Server List: List Servers\n
-                           EXAMPLE: ApplicationAPI SL\n
+                           EXAMPLE: PteroAPI SL\n
                         [ SCK ] - Server Check: Retrieve Server Details\n 
-                           EXAMPLE: ApplicationAPI SCK <SERVER_ID>\n
+                           EXAMPLE: PteroAPI SCK <SERVER_ID>\n
                         [ SFCK ] - Server Foreign Check: Retrieve Server Details Using External ID\n
-                           EXAMPLE: ApplicationAPI SFCK <EXTERNAL_SERVER_ID>\n
+                           EXAMPLE: PteroAPI SFCK <EXTERNAL_SERVER_ID>\n
                         [ SRVP ] - Server Patch: Patch Server Details *\n
-                           EXAMPLE: ApplicationAPI SRVP <SERVER_ID> <PARAMETERS>\n
+                           EXAMPLE: PteroAPI SRVP <SERVER_ID> <PARAMETERS>\n
                         [ SRVPB ] - Server Patch Build: Patch Server Build *\n
-                           EXAMPLE: ApplicationAPI SRVPB <SERVER_ID> <PARAMETERS>\n
+                           EXAMPLE: PteroAPI SRVPB <SERVER_ID> <PARAMETERS>\n
                         [ SRVPS ] - Server Patch Start: Patch Server Startup *\n
-                           EXAMPLE: ApplicationAPI SRVPS <SERVER_ID> <PARAMETERS>\n
+                           EXAMPLE: PteroAPI SRVPS <SERVER_ID> <PARAMETERS>\n
                         [ SBL ] - Server Database List: List Server Databases\n
-                           EXAMPLE: ApplicationAPI SBL\n
+                           EXAMPLE: PteroAPI SBL\n
                         [ SBLCK ] - Server Database Check: Check Server Database\n
-                           EXAMPLE: ApplicationAPI SBLCK <SERVER_ID> <DATABASE_ID>\n
+                           EXAMPLE: PteroAPI SBLCK <SERVER_ID> <DATABASE_ID>\n
                         [ SDBCRT ] - Server Database Create: Create Server Database\n
-                           EXAMPLE: ApplicationAPI SDBCRT <SERVER_ID>\n
+                           EXAMPLE: PteroAPI SDBCRT <SERVER_ID>\n
                         [ SDBPWD ] - Server Database Password Rotate: Rotate Server Database Password\n
-                           EXAMPLE: ApplicationAPI SDBPWD <SERVER_ID> <DATABASE_ID>\n
+                           EXAMPLE: PteroAPI SDBPWD <SERVER_ID> <DATABASE_ID>\n
                         [ SDBDL ] - Server Database Delete: Delete Server Database\n
-                           EXAMPLE: ApplicationAPI SDBCL <SERVER_ID> <DATABASE_ID>\n
+                           EXAMPLE: PteroAPI SDBCL <SERVER_ID> <DATABASE_ID>\n
                         [ RESRV ] - Reinstall Server: Reinstall Server\n
-                           EXAMPLE: ApplicationAPI RESRV <SERVER_ID>\n
+                           EXAMPLE: PteroAPI RESRV <SERVER_ID>\n
                         \n
                     Valid API Options:\n
                          [ /allocations ] - Automatically Assign A New Allocation\n
