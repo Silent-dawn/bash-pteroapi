@@ -32,7 +32,8 @@ PanelSubdomain='panel'
 PanelHost="${PanelSubdomain}.${HostDomain}"
 ## This Is Where Your API Keys Go
 ClientToken='MyClientAPIKey'
-AppToken='MyApplicationAPIKey'
+## Deprecated
+#AppToken='MyApplicationAPIKey'
 ## [::8] Limits The Interpreted Sting To The First 8 Characters
 TargetUUID="${SERVER_UUID::8}"
 
