@@ -32,7 +32,8 @@ PanelSubdomain='panel'
 PanelHost="${PanelSubdomain}.${HostDomain}"
 ## This Is Where Your API Keys Go
 ClientToken='MyClientAPIKey'
-AppToken='MyApplicationAPIKey'
+## Deprecated Application API Key
+#AppToken='MyApplicationAPIKey'
 ## [::8] Limits The Interpreted Sting To The First 8 Characters
 TargetUUID="${SERVER_UUID::8}"
 
@@ -204,6 +205,47 @@ ClientAPI() {
                            EXAMPLE: ClientAPI RS\n
                         [ RENS ] - Rename Server\n
                            EXAMPLE: ClientAPI RENS <PARAMETERS>\n
+                        [ RC ] - Rolecall: List Users\n
+                           EXAMPLE: ApplicationAPI RC\n
+                        [ BGC ] - Background Check: Retrieve User Details\n
+                           EXAMPLE: ApplicationAPI BGC <USER_ID>\n
+                        [ PPC ] - Passport Check: Retrieve User Details Using External ID\n
+                           EXAMPLE: ApplicationAPI PPC <EXTERNAL_USER_ID>\n
+                        [ NL ] - Node List: List Nodes\n
+                           EXAMPLE: ApplicationAPI NL\n
+                        [ NCK ] - Node Check: Retrieve Node Details\n
+                           EXAMPLE: ApplicationAPI NCK <NODE_ID>\n
+                        [ NAL ] - Node Allocations: Retrieve Node Allocations\n
+                           EXAMPLE: ApplicationAPI NAL <NODE_ID> <PAGE_NUMBER>\n
+                        [ TO ] - Travel Options: List Locations\n
+                           EXAMPLE: ApplicationAPI TO\n
+                        [ DT ] - Destination Details: Retrieve Location Details\n
+                           EXAMPLE: ApplicationAPI DT <LOCATION_ID>\n
+                        [ SL ] - Server List: List Servers\n
+                           EXAMPLE: ApplicationAPI SL\n
+                        [ SCK ] - Server Check: Retrieve Server Details\n 
+                           EXAMPLE: ApplicationAPI SCK <SERVER_ID>\n
+                        [ SFCK ] - Server Foreign Check: Retrieve Server Details Using External ID\n
+                           EXAMPLE: ApplicationAPI SFCK <EXTERNAL_SERVER_ID>\n
+                        [ SRVP ] - Server Patch: Patch Server Details *\n
+                           EXAMPLE: ApplicationAPI SRVP <SERVER_ID> <PARAMETERS>\n
+                        [ SRVPB ] - Server Patch Build: Patch Server Build *\n
+                           EXAMPLE: ApplicationAPI SRVPB <SERVER_ID> <PARAMETERS>\n
+                        [ SRVPS ] - Server Patch Start: Patch Server Startup *\n
+                           EXAMPLE: ApplicationAPI SRVPS <SERVER_ID> <PARAMETERS>\n
+                        [ SBL ] - Server Database List: List Server Databases\n
+                           EXAMPLE: ApplicationAPI SBL\n
+                        [ SBLCK ] - Server Database Check: Check Server Database\n
+                           EXAMPLE: ApplicationAPI SBLCK <SERVER_ID> <DATABASE_ID>\n
+                        [ SDBCRT ] - Server Database Create: Create Server Database\n
+                           EXAMPLE: ApplicationAPI SDBCRT <SERVER_ID>\n
+                        [ SDBPWD ] - Server Database Password Rotate: Rotate Server Database Password\n
+                           EXAMPLE: ApplicationAPI SDBPWD <SERVER_ID> <DATABASE_ID>\n
+                        [ SDBDL ] - Server Database Delete: Delete Server Database\n
+                           EXAMPLE: ApplicationAPI SDBCL <SERVER_ID> <DATABASE_ID>\n
+                        [ RESRV ] - Reinstall Server: Reinstall Server\n
+                           EXAMPLE: ApplicationAPI RESRV <SERVER_ID>\n
+                        \n
                     Valid API Options:\n
                          [ /allocations ] - Automatically Assign A New Allocation\n
                          [ /allocations/{allocation} ] - Set Allocation Note. Json key:value Pair\n
@@ -430,99 +472,11 @@ ClientAPI() {
                         ;;
                     esac
                 ;;
-                *) printf '%s\n' "[ERROR] Invalid Arguement" >&2 ;; ## Obviously you didn't listen and put something stupid.
-            esac
-        ;;
-    esac
-} ## End Of Function
-
-###############################################################################################
-##                                                                                           ##
-##  NOTE: Application API Permissions                                                        ##
-##                                                                                           ##
-##  For The Application API, It Is Advised To ONLY Give Read, If Anything, Permissions For   ##
-##  Anything Except The Servers And Server Database Permissions. Those Get Read/Write Perms  ##
-##                                                                                           ##
-##  This Is To Prevent Catastrophic Damage Due To Someone Getting Ahold Of The Key. They'll  ##
-##  Be Stuck Only Able To Manipulate Servers, Not Stuff Like Nests, Locations, Or Nodes.     ##
-##                                                                                           ##
-###############################################################################################
-
-ApplicationAPI() {
-    ################################################################
-    ##    ApplicationAPI - PTERODACTYL APPLICATION API WRAPPER    ##
-    ################################################################
-    ## Setup the Application Token, Target Server, And TargetURL
-    local App_Token && App_Token="${ClientToken}" && readonly App_Token
-    ## The Emperor has graced you with read perms, and only RW on servers and server databases.
-    ## Do not forget this Astartes.
-    local UrlTarget && UrlTarget="https://${PanelHost}/api/application"
-    local APIOperation
-    case "${1:-NULL}" in
-        ""|"NULL"|"null")
-            printf '%s\n' "[ERROR] Desired API Operation Required. ClientAPI H For More Information" >&2 
-            return 1
-        ;;
-        *)
-            APIOperation="${1}"
-            case "${APIOperation}" in
-                "HELP"|"help"|"h"|"H") ## Help menu
-                    echo -e "\n
-                    ApplicationAPI | Pterodactyl App API Help Menu:\n
-                        Syntax: ApplicationAPI <Command> <Command Argument(s)>\n
-                    Valid Options:\n
-                        [ H ] - Help\n
-                           EXAMPLE: ApplicationAPI H\n
-                        [ RC ] - Rolecall: List Users\n
-                           EXAMPLE: ApplicationAPI RC\n
-                        [ BGC ] - Background Check: Retrieve User Details\n
-                           EXAMPLE: ApplicationAPI BGC <USER_ID>\n
-                        [ PPC ] - Passport Check: Retrieve User Details Using External ID\n
-                           EXAMPLE: ApplicationAPI PPC <EXTERNAL_USER_ID>\n
-                        [ NL ] - Node List: List Nodes\n
-                           EXAMPLE: ApplicationAPI NL\n
-                        [ NCK ] - Node Check: Retrieve Node Details\n
-                           EXAMPLE: ApplicationAPI NCK <NODE_ID>\n
-                        [ NAL ] - Node Allocations: Retrieve Node Allocations\n
-                           EXAMPLE: ApplicationAPI NAL <NODE_ID> <PAGE_NUMBER>\n
-                        [ TO ] - Travel Options: List Locations\n
-                           EXAMPLE: ApplicationAPI TO\n
-                        [ DT ] - Destination Details: Retrieve Location Details\n
-                           EXAMPLE: ApplicationAPI DT <LOCATION_ID>\n
-                        [ SL ] - Server List: List Servers\n
-                           EXAMPLE: ApplicationAPI SL\n
-                        [ SCK ] - Server Check: Retrieve Server Details\n 
-                           EXAMPLE: ApplicationAPI SCK <SERVER_ID>\n
-                        [ SFCK ] - Server Foreign Check: Retrieve Server Details Using External ID\n
-                           EXAMPLE: ApplicationAPI SFCK <EXTERNAL_SERVER_ID>\n
-                        [ SRVP ] - Server Patch: Patch Server Details *\n
-                           EXAMPLE: ApplicationAPI SRVP <SERVER_ID> <PARAMETERS>\n
-                        [ SRVPB ] - Server Patch Build: Patch Server Build *\n
-                           EXAMPLE: ApplicationAPI SRVPB <SERVER_ID> <PARAMETERS>\n
-                        [ SRVPS ] - Server Patch Start: Patch Server Startup *\n
-                           EXAMPLE: ApplicationAPI SRVPS <SERVER_ID> <PARAMETERS>\n
-                        [ SBL ] - Server Database List: List Server Databases\n
-                           EXAMPLE: ApplicationAPI SBL\n
-                        [ SBLCK ] - Server Database Check: Check Server Database\n
-                           EXAMPLE: ApplicationAPI SBLCK <SERVER_ID> <DATABASE_ID>\n
-                        [ SDBCRT ] - Server Database Create: Create Server Database\n
-                           EXAMPLE: ApplicationAPI SDBCRT <SERVER_ID>\n
-                        [ SDBPWD ] - Server Database Password Rotate: Rotate Server Database Password\n
-                           EXAMPLE: ApplicationAPI SDBPWD <SERVER_ID> <DATABASE_ID>\n
-                        [ SDBDL ] - Server Database Delete: Delete Server Database\n
-                           EXAMPLE: ApplicationAPI SDBCL <SERVER_ID> <DATABASE_ID>\n
-                        [ RESRV ] - Reinstall Server: Reinstall Server\n
-                           EXAMPLE: ApplicationAPI RESRV <SERVER_ID>\n
-                        \n
-                        * - Note:\n
-                            Input MUST be a valid JSON Key|Value pair.\n
-                    "
-                ;;
                 "ROLECALL"|"rolecall"|"RC"|"rc"|"LISTSERVERS"|"listservers")
-                    CurlOp "${UrlTarget}/users" "${App_Token}" "GET"
+                    CurlOp "${UrlTarget}/users" "${Client_Token}" "GET"
                 ;;
                 "BACKGROUNDCHECK"|"backgroundcheck"|"BGC"|"bgc")
-                    CurlOp "${UrlTarget}/users/${2}" "${App_Token}" "GET"
+                    CurlOp "${UrlTarget}/users/${2}" "${Client_Token}" "GET"
                 ;;
                 "PASSPORTCHECK"|"passportcheck"|"ppc"|"PPC")
                     case "${2:-NULL}" in 
@@ -531,12 +485,12 @@ ApplicationAPI() {
                             return 1
                         ;;
                         *)
-                            CurlOp "${UrlTarget}/users/external/${2}" "${App_Token}" "GET"
+                            CurlOp "${UrlTarget}/users/external/${2}" "${Client_Token}" "GET"
                         ;;
                     esac
                 ;;
                 "NODELIST"|"nodelist"|"NL"|"nl")
-                    CurlOp "${UrlTarget}/nodes" "${App_Token}" "GET"
+                    CurlOp "${UrlTarget}/nodes" "${Client_Token}" "GET"
                 ;;
                 "NODECHECK"|"nodecheck"|"NCK"|"nck")
                     case "${2:-NULL}" in 
@@ -545,7 +499,7 @@ ApplicationAPI() {
                             return 1
                         ;;
                         *)
-                            CurlOp "${UrlTarget}/nodes/${2}" "${App_Token}" "GET"
+                            CurlOp "${UrlTarget}/nodes/${2}" "${Client_Token}" "GET"
                         ;;
                     esac
                 ;;
@@ -569,7 +523,7 @@ ApplicationAPI() {
                     esac
                 ;;
                 "TRAVELOPTIONS"|"traveloptions"|"TO"|"to")
-                    CurlOp "${UrlTarget}/locations" "${App_Token}" "GET"
+                    CurlOp "${UrlTarget}/locations" "${Client_Token}" "GET"
                 ;;
                 "DESTINATIONDETAILS"|"destinationdetails"|"DT"|"dt")
                     case "${2:-NULL}" in 
@@ -578,12 +532,12 @@ ApplicationAPI() {
                             return 1
                         ;;
                         *)
-                            CurlOp "${UrlTarget}/locations/${2}" "${App_Token}" "GET"
+                            CurlOp "${UrlTarget}/locations/${2}" "${Client_Token}" "GET"
                         ;;
                     esac
                 ;;
                 "SERVERLIST"|"serverlist"|"SL"|"sl")
-                    CurlOp "${UrlTarget}/servers" "${App_Token}" "GET"
+                    CurlOp "${UrlTarget}/servers" "${Client_Token}" "GET"
                 ;;
                 "SERVERCHECK"|"servercheck"|"SCK"|"sck")
                     case "${2:-NULL}" in 
@@ -592,7 +546,7 @@ ApplicationAPI() {
                             return 1
                         ;;
                         *)
-                            CurlOp "${UrlTarget}/servers/${2}?include=allocations,user,location,node,databases" "${App_Token}" "GET"
+                            CurlOp "${UrlTarget}/servers/${2}?include=allocations,user,location,node,databases" "${Client_Token}" "GET"
                         ;;
                     esac
                 ;;
@@ -603,7 +557,7 @@ ApplicationAPI() {
                             return 1
                         ;;
                         *)
-                            CurlOp "${UrlTarget}/servers/external/${2}" "${App_Token}" "GET"
+                            CurlOp "${UrlTarget}/servers/external/${2}" "${Client_Token}" "GET"
                         ;;
                     esac
                 ;;
@@ -620,7 +574,7 @@ ApplicationAPI() {
                                     return 1
                                 ;;
                                 *)
-                                    CurlOp "${UrlTarget}/servers/${2}/details" "${App_Token}" "PATCH" "${3}" ## ${3} MUST BE A VALID JSON BODY
+                                    CurlOp "${UrlTarget}/servers/${2}/details" "${Client_Token}" "PATCH" "${3}" ## ${3} MUST BE A VALID JSON BODY
                                 ;;
                             
                             esac
@@ -640,7 +594,7 @@ ApplicationAPI() {
                                     return 1
                                 ;;
                                 *)
-                                    CurlOp "${UrlTarget}/servers/${2}/build" "${App_Token}" "PATCH" "${3}" ## ${3} MUST BE A VALID JSON BODY
+                                    CurlOp "${UrlTarget}/servers/${2}/build" "${Client_Token}" "PATCH" "${3}" ## ${3} MUST BE A VALID JSON BODY
                                 ;;
                             
                             esac
@@ -660,7 +614,7 @@ ApplicationAPI() {
                                     return 1
                                 ;;
                                 *)
-                                    CurlOp "${UrlTarget}/servers/${2}/startup" "${App_Token}" "PATCH" "${3}" ## ${3} MUST BE A VALID JSON BODY
+                                    CurlOp "${UrlTarget}/servers/${2}/startup" "${Client_Token}" "PATCH" "${3}" ## ${3} MUST BE A VALID JSON BODY
                                 ;;
                             
                             esac
@@ -674,7 +628,7 @@ ApplicationAPI() {
                             return 1
                         ;;
                         *)
-                            CurlOp "${UrlTarget}/servers/${2}/databases?include=password,host" "${App_Token}" "GET"
+                            CurlOp "${UrlTarget}/servers/${2}/databases?include=password,host" "${Client_Token}" "GET"
                         ;;
                     esac
                 ;;
@@ -691,7 +645,7 @@ ApplicationAPI() {
                                     return 1
                                 ;;
                                 *)
-                                    CurlOp "${UrlTarget}/servers/${2}/databases/${3}" "${App_Token}" "GET"
+                                    CurlOp "${UrlTarget}/servers/${2}/databases/${3}" "${Client_Token}" "GET"
                                 ;;
                             
                             esac
@@ -705,7 +659,7 @@ ApplicationAPI() {
                             return 1
                         ;;
                         *)
-                            CurlOp "${UrlTarget}/servers/${2}/databases" "${App_Token}" "POST"
+                            CurlOp "${UrlTarget}/servers/${2}/databases" "${Client_Token}" "POST"
                         ;;
                     esac
                 ;;
@@ -722,7 +676,7 @@ ApplicationAPI() {
                                     return 1
                                 ;;
                                 *)
-                                    CurlOp "${UrlTarget}/servers/${2}/databases/${3}/reset-password" "${App_Token}" "POST"
+                                    CurlOp "${UrlTarget}/servers/${2}/databases/${3}/reset-password" "${Client_Token}" "POST"
                                 ;;
                             
                             esac
@@ -742,7 +696,7 @@ ApplicationAPI() {
                                     return 1
                                 ;;
                                 *)
-                                    CurlOp "${UrlTarget}/servers/${2}/databases/${3}" "${App_Token}" "DELETE"
+                                    CurlOp "${UrlTarget}/servers/${2}/databases/${3}" "${Client_Token}" "DELETE"
                                 ;;
                             
                             esac
@@ -756,12 +710,344 @@ ApplicationAPI() {
                             return 1
                         ;;
                         *)
-                            CurlOp "${UrlTarget}/servers/${2}/reinstall" "${App_Token}" "POST"
+                            CurlOp "${UrlTarget}/servers/${2}/reinstall" "${Client_Token}" "POST"
                         ;;
                     esac
                 ;;
-                *) printf '%s\n' "[ERROR] Invalid Arguement" >&2 ;; ## Self Explanitory.
+                *) printf '%s\n' "[ERROR] Invalid Arguement" >&2 ;; ## Obviously you didn't listen and put something stupid.
             esac
-        ;;     
+        ;;
     esac
 } ## End Of Function
+
+## Deprecated Application API Interface
+
+###############################################################################################
+##                                                                                           ##
+##  NOTE: Application API Permissions                                                        ##
+##                                                                                           ##
+##  For The Application API, It Is Advised To ONLY Give Read, If Anything, Permissions For   ##
+##  Anything Except The Servers And Server Database Permissions. Those Get Read/Write Perms  ##
+##                                                                                           ##
+##  This Is To Prevent Catastrophic Damage Due To Someone Getting Ahold Of The Key. They'll  ##
+##  Be Stuck Only Able To Manipulate Servers, Not Stuff Like Nests, Locations, Or Nodes.     ##
+##                                                                                           ##
+###############################################################################################
+
+#ApplicationAPI() {
+#    ################################################################
+#    ##    ApplicationAPI - PTERODACTYL APPLICATION API WRAPPER    ##
+#    ################################################################
+#    ## Setup the Application Token, Target Server, And TargetURL
+#    local App_Token && App_Token="${ClientToken}" && readonly App_Token
+#    ## The Emperor has graced you with read perms, and only RW on servers and server databases.
+#    ## Do not forget this Astartes.
+#    local UrlTarget && UrlTarget="https://${PanelHost}/api/application"
+#    local APIOperation
+#    case "${1:-NULL}" in
+#        ""|"NULL"|"null")
+#            printf '%s\n' "[ERROR] Desired API Operation Required. ClientAPI H For More Information" >&2 
+#            return 1
+#        ;;
+#        *)
+#            APIOperation="${1}"
+#            case "${APIOperation}" in
+#                "HELP"|"help"|"h"|"H") ## Help menu
+#                    echo -e "\n
+#                    ApplicationAPI | Pterodactyl App API Help Menu:\n
+#                        Syntax: ApplicationAPI <Command> <Command Argument(s)>\n
+#                    Valid Options:\n
+#                        [ H ] - Help\n
+#                           EXAMPLE: ApplicationAPI H\n
+#                        [ RC ] - Rolecall: List Users\n
+#                           EXAMPLE: ApplicationAPI RC\n
+#                        [ BGC ] - Background Check: Retrieve User Details\n
+#                           EXAMPLE: ApplicationAPI BGC <USER_ID>\n
+#                        [ PPC ] - Passport Check: Retrieve User Details Using External ID\n
+#                           EXAMPLE: ApplicationAPI PPC <EXTERNAL_USER_ID>\n
+#                        [ NL ] - Node List: List Nodes\n
+#                           EXAMPLE: ApplicationAPI NL\n
+#                        [ NCK ] - Node Check: Retrieve Node Details\n
+#                           EXAMPLE: ApplicationAPI NCK <NODE_ID>\n
+#                        [ NAL ] - Node Allocations: Retrieve Node Allocations\n
+#                           EXAMPLE: ApplicationAPI NAL <NODE_ID> <PAGE_NUMBER>\n
+#                        [ TO ] - Travel Options: List Locations\n
+#                           EXAMPLE: ApplicationAPI TO\n
+#                        [ DT ] - Destination Details: Retrieve Location Details\n
+#                           EXAMPLE: ApplicationAPI DT <LOCATION_ID>\n
+#                        [ SL ] - Server List: List Servers\n
+#                           EXAMPLE: ApplicationAPI SL\n
+#                        [ SCK ] - Server Check: Retrieve Server Details\n 
+#                           EXAMPLE: ApplicationAPI SCK <SERVER_ID>\n
+#                        [ SFCK ] - Server Foreign Check: Retrieve Server Details Using External ID\n
+#                           EXAMPLE: ApplicationAPI SFCK <EXTERNAL_SERVER_ID>\n
+#                        [ SRVP ] - Server Patch: Patch Server Details *\n
+#                           EXAMPLE: ApplicationAPI SRVP <SERVER_ID> <PARAMETERS>\n
+#                        [ SRVPB ] - Server Patch Build: Patch Server Build *\n
+#                           EXAMPLE: ApplicationAPI SRVPB <SERVER_ID> <PARAMETERS>\n
+#                        [ SRVPS ] - Server Patch Start: Patch Server Startup *\n
+#                           EXAMPLE: ApplicationAPI SRVPS <SERVER_ID> <PARAMETERS>\n
+#                        [ SBL ] - Server Database List: List Server Databases\n
+#                           EXAMPLE: ApplicationAPI SBL\n
+#                        [ SBLCK ] - Server Database Check: Check Server Database\n
+#                           EXAMPLE: ApplicationAPI SBLCK <SERVER_ID> <DATABASE_ID>\n
+#                        [ SDBCRT ] - Server Database Create: Create Server Database\n
+#                           EXAMPLE: ApplicationAPI SDBCRT <SERVER_ID>\n
+#                        [ SDBPWD ] - Server Database Password Rotate: Rotate Server Database Password\n
+#                           EXAMPLE: ApplicationAPI SDBPWD <SERVER_ID> <DATABASE_ID>\n
+#                        [ SDBDL ] - Server Database Delete: Delete Server Database\n
+#                           EXAMPLE: ApplicationAPI SDBCL <SERVER_ID> <DATABASE_ID>\n
+#                        [ RESRV ] - Reinstall Server: Reinstall Server\n
+#                           EXAMPLE: ApplicationAPI RESRV <SERVER_ID>\n
+#                        \n
+#                        * - Note:\n
+#                            Input MUST be a valid JSON Key|Value pair.\n
+#                    "
+#                ;;
+#                "ROLECALL"|"rolecall"|"RC"|"rc"|"LISTSERVERS"|"listservers")
+#                    CurlOp "${UrlTarget}/users" "${App_Token}" "GET"
+#                ;;
+#                "BACKGROUNDCHECK"|"backgroundcheck"|"BGC"|"bgc")
+#                    CurlOp "${UrlTarget}/users/${2}" "${App_Token}" "GET"
+#                ;;
+#                "PASSPORTCHECK"|"passportcheck"|"ppc"|"PPC")
+#                    case "${2:-NULL}" in 
+#                        ""|"NULL"|"null")
+#                            printf '%s\n' "[ERROR] Target External User ID Required. ApplicationAPI H For More Information" >&2 
+#                            return 1
+#                        ;;
+#                        *)
+#                            CurlOp "${UrlTarget}/users/external/${2}" "${App_Token}" "GET"
+#                        ;;
+#                    esac
+#                ;;
+#                "NODELIST"|"nodelist"|"NL"|"nl")
+#                    CurlOp "${UrlTarget}/nodes" "${App_Token}" "GET"
+#                ;;
+#                "NODECHECK"|"nodecheck"|"NCK"|"nck")
+#                    case "${2:-NULL}" in 
+#                        ""|"NULL"|"null")
+#                            printf '%s\n' "[ERROR] Target Node ID Required. ApplicationAPI H For More Information" >&2 
+#                            return 1
+#                        ;;
+#                        *)
+#                            CurlOp "${UrlTarget}/nodes/${2}" "${App_Token}" "GET"
+#                        ;;
+#                    esac
+#                ;;
+#                "NODEALLOC"|"nodealloc"|"NAL"|"nal")
+#                    case "${2:-NULL}" in 
+#                        ""|"NULL"|"null")
+#                            printf '%s\n' "[ERROR] Target Node ID Required. ApplicationAPI H For More Information" >&2 
+#                            return 1
+#                        ;;
+#                        *)
+#                            case "${3:-NULL}" in 
+#                                ""|"NULL"|"null")
+#                                    CurlAPI "${UrlTarget}/nodes/${2}/allocations?per_page=500" "${SPANNER}" "GET"
+#                                ;;
+#                                *)
+#                                    CurlAPI "${UrlTarget}/nodes/${2}/allocations?per_page=500&page=${3}" "${SPANNER}" "GET"
+#                                ;;
+#                            
+#                            esac
+#                        ;;
+#                    esac
+#                ;;
+#                "TRAVELOPTIONS"|"traveloptions"|"TO"|"to")
+#                    CurlOp "${UrlTarget}/locations" "${App_Token}" "GET"
+#                ;;
+#                "DESTINATIONDETAILS"|"destinationdetails"|"DT"|"dt")
+#                    case "${2:-NULL}" in 
+#                        ""|"NULL"|"null")
+#                            printf '%s\n' "[ERROR] Location ID Required. ApplicationAPI H For More Information" >&2 
+#                            return 1
+#                        ;;
+#                        *)
+#                            CurlOp "${UrlTarget}/locations/${2}" "${App_Token}" "GET"
+#                        ;;
+#                    esac
+#                ;;
+#                "SERVERLIST"|"serverlist"|"SL"|"sl")
+#                    CurlOp "${UrlTarget}/servers" "${App_Token}" "GET"
+#                ;;
+#                "SERVERCHECK"|"servercheck"|"SCK"|"sck")
+#                    case "${2:-NULL}" in 
+#                        ""|"NULL"|"null")
+#                            printf '%s\n' "[ERROR] Target Server ID Required. ApplicationAPI H For More Information" >&2 
+#                            return 1
+#                        ;;
+#                        *)
+#                            CurlOp "${UrlTarget}/servers/${2}?include=allocations,user,location,node,databases" "${App_Token}" "GET"
+#                        ;;
+#                    esac
+#                ;;
+#                "SERVERFOERIGNCHECK"|"serverforeigncheck"|"SFCK"|"sfck")
+#                    case "${2:-NULL}" in 
+#                        ""|"NULL"|"null")
+#                            printf '%s\n' "[ERROR] Target External Server ID Required. ApplicationAPI H For More Information" >&2 
+#                            return 1
+#                        ;;
+#                        *)
+#                            CurlOp "${UrlTarget}/servers/external/${2}" "${App_Token}" "GET"
+#                        ;;
+#                    esac
+#                ;;
+#                "SERVERPATCH"|"serverpatch"|"SRVP"|"srvp")
+#                    case "${2:-NULL}" in 
+#                        ""|"NULL"|"null")
+#                            printf '%s\n' "[ERROR] Target Server ID Required. ApplicationAPI H For More Information" >&2 
+#                            return 1
+#                        ;;
+#                        *)
+#                            case "${3:-NULL}" in 
+#                                ""|"NULL"|"null")
+#                                    printf '%s\n' "[ERROR] Server Patch Payload Required. ApplicationAPI H For More Information" >&2 
+#                                    return 1
+#                                ;;
+#                                *)
+#                                    CurlOp "${UrlTarget}/servers/${2}/details" "${App_Token}" "PATCH" "${3}" ## ${3} MUST BE A VALID JSON BODY
+#                                ;;
+#                            
+#                            esac
+#                        ;;
+#                    esac
+#                ;;
+#                "SERVERPATCHBUILD"|"serverpatchbuild"|"SRVPB"|"srvpb")
+#                    case "${2:-NULL}" in 
+#                        ""|"NULL"|"null")
+#                            printf '%s\n' "[ERROR] Target Server ID Required. ApplicationAPI H For More Information" >&2 
+#                            return 1
+#                        ;;
+#                        *)
+#                            case "${3:-NULL}" in 
+#                                ""|"NULL"|"null")
+#                                    printf '%s\n' "[ERROR] Server Build Payload Required. ApplicationAPI H For More Information" >&2 
+#                                    return 1
+#                                ;;
+#                                *)
+#                                    CurlOp "${UrlTarget}/servers/${2}/build" "${App_Token}" "PATCH" "${3}" ## ${3} MUST BE A VALID JSON BODY
+#                                ;;
+#                            
+#                            esac
+#                        ;;
+#                    esac
+#                ;;
+#                "SERVERPATCHSTART"|"serverpatchstart"|"SRVPS"|"srvps")
+#                    case "${2:-NULL}" in 
+#                        ""|"NULL"|"null")
+#                            printf '%s\n' "[ERROR] Target Server ID Required. ApplicationAPI H For More Information" >&2 
+#                            return 1
+#                        ;;
+#                        *)
+#                            case "${3:-NULL}" in 
+#                                ""|"NULL"|"null")
+#                                    printf '%s\n' "[ERROR] Server Start Patch Payload Required. ApplicationAPI H For More Information" >&2 
+#                                    return 1
+#                                ;;
+#                                *)
+#                                    CurlOp "${UrlTarget}/servers/${2}/startup" "${App_Token}" "PATCH" "${3}" ## ${3} MUST BE A VALID JSON BODY
+#                                ;;
+#                            
+#                            esac
+#                        ;;
+#                    esac
+#                ;;
+#                "SERVERDATABASELIST"|"serverdatabaselist"|"SDBL"|"sdbl")
+#                    case "${2:-NULL}" in 
+#                        ""|"NULL"|"null")
+#                            printf '%s\n' "[ERROR] Target External Server ID Required. ApplicationAPI H For More Information" >&2 
+#                            return 1
+#                        ;;
+#                        *)
+#                            CurlOp "${UrlTarget}/servers/${2}/databases?include=password,host" "${App_Token}" "GET"
+#                        ;;
+#                    esac
+#                ;;
+#                "SERVERDATABASECHECK"|"serverdatabasecheck"|"SDBCK"|"sdbck")
+#                    case "${2:-NULL}" in 
+#                        ""|"NULL"|"null")
+#                            printf '%s\n' "[ERROR] Target Server ID Required. ApplicationAPI H For More Information" >&2 
+#                            return 1
+#                        ;;
+#                        *)
+#                            case "${3:-NULL}" in 
+#                                ""|"NULL"|"null")
+#                                    printf '%s\n' "[ERROR] Target Database ID Required. ApplicationAPI H For More Information" >&2 
+#                                    return 1
+#                                ;;
+#                                *)
+#                                    CurlOp "${UrlTarget}/servers/${2}/databases/${3}" "${App_Token}" "GET"
+#                                ;;
+#                            
+#                            esac
+#                        ;;
+#                    esac
+#                ;;
+#                "SERVERDATABASECREATE"|"serverdatabasecreate"|"SDBCRT"|"sdbcrt")
+#                    case "${2:-NULL}" in 
+#                        ""|"NULL"|"null")
+#                            printf '%s\n' "[ERROR] Target Server ID Required. ApplicationAPI H For More Information" >&2 
+#                            return 1
+#                        ;;
+#                        *)
+#                            CurlOp "${UrlTarget}/servers/${2}/databases" "${App_Token}" "POST"
+#                        ;;
+#                    esac
+#                ;;
+#                "SERVERDATABASEPASSWORD"|"serverdatabasepassword"|"SDBPWD"|"sdbpwd")
+#                    case "${2:-NULL}" in 
+#                        ""|"NULL"|"null")
+#                            printf '%s\n' "[ERROR] Target Server ID Required. ApplicationAPI H For More Information" >&2 
+#                            return 1
+#                        ;;
+#                        *)
+#                            case "${3:-NULL}" in 
+#                                ""|"NULL"|"null")
+#                                    printf '%s\n' "[ERROR] Target Database ID Required. ApplicationAPI H For More Information" >&2 
+#                                    return 1
+#                                ;;
+#                                *)
+#                                    CurlOp "${UrlTarget}/servers/${2}/databases/${3}/reset-password" "${App_Token}" "POST"
+#                                ;;
+#                            
+#                            esac
+#                        ;;
+#                    esac
+#                ;;
+#                "SERVERDATABASEDELETE"|"serverdatabasedelete"|"SDBDL"|"sdbdl")
+#                    case "${2:-NULL}" in 
+#                        ""|"NULL"|"null")
+#                            printf '%s\n' "[ERROR] Target Server ID Required. ApplicationAPI H For More Information" >&2 
+#                            return 1
+#                        ;;
+#                        *)
+#                            case "${3:-NULL}" in 
+#                                ""|"NULL"|"null")
+#                                    printf '%s\n' "[ERROR] Target Database ID Required. ApplicationAPI H For More Information" >&2 
+#                                    return 1
+#                                ;;
+#                                *)
+#                                    CurlOp "${UrlTarget}/servers/${2}/databases/${3}" "${App_Token}" "DELETE"
+#                                ;;
+#                            
+#                            esac
+#                        ;;
+#                    esac
+#                ;;
+#                "REINSTALLSERVER"|"reinstallserver"|"RESRV"|"resrv")
+#                    case "${2:-NULL}" in 
+#                        ""|"NULL"|"null")
+#                            printf '%s\n' "[ERROR] Target Server ID Required. ApplicationAPI H For More Information" >&2 
+#                            return 1
+#                        ;;
+#                        *)
+#                            CurlOp "${UrlTarget}/servers/${2}/reinstall" "${App_Token}" "POST"
+#                        ;;
+#                    esac
+#                ;;
+#                *) printf '%s\n' "[ERROR] Invalid Arguement" >&2 ;; ## Self Explanitory.
+#            esac
+#        ;;     
+#    esac
+#} ## End Of Function
